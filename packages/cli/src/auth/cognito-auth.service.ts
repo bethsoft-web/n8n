@@ -153,10 +153,16 @@ export class CognitoAuthService {
 		req: AuthenticatedRequest,
 	): Promise<CognitoIdentityPayload | null> {
 		const token = req.headers['x-amzn-oidc-data'] as string | undefined;
-		if (!token) return null;
+		if (!token) {
+			this.logger.debug('Cognito auth: No x-amzn-oidc-data header present');
+			return null;
+		}
 
 		const decoded = jwt.decode(token, { complete: true });
-		if (!decoded) return null;
+		if (!decoded) {
+			this.logger.warn('Cognito auth: Failed to decode identity token');
+			return null;
+		}
 
 		const { header } = decoded;
 
@@ -166,12 +172,25 @@ export class CognitoAuthService {
 		if (this.isELBToken(header)) {
 			// Validate client matches our expected Cognito client ID
 			if (header.client !== this.globalConfig.cognito.clientId) {
-				this.logger.warn('Cognito auth: ELB token client mismatch');
+				this.logger.warn('Cognito auth: ELB token client mismatch', {
+					expected: this.globalConfig.cognito.clientId,
+					received: header.client,
+				});
 				return null;
 			}
-			publicKey = await this.elbKeyCache.fetch(header.kid);
+			try {
+				publicKey = await this.elbKeyCache.fetch(header.kid);
+			} catch (error) {
+				this.logger.error('Cognito auth: Failed to fetch ELB public key', {
+					kid: header.kid,
+					error: (error as Error).message,
+				});
+				return null;
+			}
 		} else {
-			this.logger.warn('Cognito auth: Unrecognized identity token format');
+			this.logger.warn('Cognito auth: Unrecognized identity token format', {
+				headerKeys: Object.keys(header),
+			});
 			return null;
 		}
 
@@ -195,9 +214,14 @@ export class CognitoAuthService {
 			};
 		} catch (error) {
 			if (error instanceof jwt.TokenExpiredError) {
-				this.logger.debug('Cognito auth: Identity token expired');
+				this.logger.warn('Cognito auth: Identity token expired');
 			} else if (error instanceof jwt.JsonWebTokenError) {
 				this.logger.warn('Cognito auth: Identity token verification failed', {
+					error: (error as Error).message,
+					issuer: this.cognitoIssuer,
+				});
+			} else {
+				this.logger.error('Cognito auth: Unexpected error during token validation', {
 					error: (error as Error).message,
 				});
 			}

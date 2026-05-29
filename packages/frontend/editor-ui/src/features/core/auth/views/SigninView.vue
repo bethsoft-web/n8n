@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import AuthView from './AuthView.vue';
@@ -14,6 +14,7 @@ import { useSettingsStore } from '@/app/stores/settings.store';
 import { useSSOStore } from '@/features/settings/sso/sso.store';
 
 import type { IFormBoxConfig } from '@/Interface';
+import { UserManagementAuthenticationMethod } from '@/Interface';
 import { MFA_AUTHENTICATION_REQUIRED_ERROR_CODE, VIEWS, MFA_FORM } from '@/app/constants';
 import type { LoginRequestDto } from '@n8n/api-types';
 
@@ -40,6 +41,16 @@ const showMfaView = ref(false);
 const emailOrLdapLoginId = ref('');
 const password = ref('');
 const reportError = ref(false);
+const cognitoRedirecting = ref(false);
+
+onMounted(() => {
+	const isCognito =
+		settingsStore.userManagement.authenticationMethod ===
+		UserManagementAuthenticationMethod.Cognito;
+	if (isCognito) {
+		cognitoRedirecting.value = true;
+	}
+});
 
 const ldapLoginLabel = computed(() => ssoStore.ldapLoginLabel);
 const isLdapLoginEnabled = computed(() => ssoStore.isLdapLoginEnabled);
@@ -199,7 +210,7 @@ const cacheCredentials = (form: EmailOrLdapLoginIdAndPassword) => {
 </script>
 
 <template>
-	<div>
+	<div v-if="!cognitoRedirecting">
 		<AuthView
 			v-if="!showMfaView"
 			:form="formConfig"
