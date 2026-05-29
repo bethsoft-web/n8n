@@ -1,0 +1,13 @@
+diff --git a/lib/verify-stream.js b/lib/verify-stream.js
+index bb1cb00ce28e9cd3c1c67c60bc7a383c132ad670..5f23c818fb7a80c39d16642de33beb181cf4af1f 100644
+--- a/lib/verify-stream.js
++++ b/lib/verify-stream.js
+@@ -5,7 +5,7 @@ var jwa = require('jwa');
+ var Stream = require('stream');
+ var toString = require('./tostring');
+ var util = require('util');
+-var JWS_REGEX = /^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/;
++var JWS_REGEX = /^[a-zA-Z0-9\-_=]+?\.[a-zA-Z0-9\-_=]+?\.([a-zA-Z0-9\-_=]+)?$/;
+ 
+ function isObject(thing) {
+   return Object.prototype.toString.call(thing) === '[object Object]';
