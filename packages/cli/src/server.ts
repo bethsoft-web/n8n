@@ -487,10 +487,10 @@ export class Server extends AbstractServer {
 		const authService = Container.get(AuthService);
 
 		if (frontendService) {
-			// When Cognito is enabled, use Cognito middleware so ALB-authenticated users
-			// get full settings on first load (no cookie needed).
+			// When Cognito is enabled, attempt Cognito auth but allow unauthenticated
+			// requests through so the frontend can still get public settings.
 			const settingsAuthMiddleware = this.globalConfig.cognito.enabled
-				? Container.get(CognitoAuthService).createAuthMiddleware()
+				? Container.get(CognitoAuthService).createOptionalAuthMiddleware()
 				: authService.createAuthMiddleware({ allowSkipMFA: false, allowUnauthenticated: true });
 
 			// Returns the current settings for the UI

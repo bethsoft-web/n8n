@@ -90,7 +90,7 @@ export class CognitoAuthService {
 
 	/**
 	 * Creates the Express middleware that authenticates requests via Cognito ALB headers.
-	 * Sets req.user if authentication succeeds.
+	 * Sets req.user if authentication succeeds. Returns 401 if auth fails.
 	 */
 	createAuthMiddleware() {
 		return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -115,6 +115,34 @@ export class CognitoAuthService {
 				}
 				throw error;
 			}
+		};
+	}
+
+	/**
+	 * Creates a "soft" auth middleware that attempts Cognito ALB authentication
+	 * but allows the request through even if no ALB headers are present.
+	 * Used for endpoints like /settings that need to work for both
+	 * authenticated and unauthenticated states.
+	 */
+	createOptionalAuthMiddleware() {
+		return async (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
+			try {
+				const identity = await this.validateIdentityToken(req);
+				if (!identity) {
+					// No ALB headers or invalid token — allow through without user
+					return next();
+				}
+
+				const access = await this.validateAccessToken(req);
+				const groups = access?.groups ?? [];
+
+				const user = await this.findOrCreateUser(identity, groups);
+				req.user = user;
+				req.authInfo = { usedMfa: false };
+			} catch {
+				// Auth failed — allow through without user
+			}
+			next();
 		};
 	}
 
