@@ -14,6 +14,7 @@ import { resolve } from 'path';
 
 import { AbstractServer } from '@/abstract-server';
 import { AuthService } from '@/auth/auth.service';
+import { CognitoAuthService } from '@/auth/cognito-auth.service';
 import { CLI_DIR, EDITOR_UI_DIST_DIR, inE2ETests } from '@/constants';
 import { ControllerRegistry } from '@/controller.registry';
 import { CredentialsOverwrites } from '@/credentials-overwrites';
@@ -325,22 +326,21 @@ export class Server extends AbstractServer {
 
 		// Protect type files with authentication regardless of UI availability
 		const authService = Container.get(AuthService);
+		const typeFilesAuthMiddleware = this.globalConfig.cognito.enabled
+			? Container.get(CognitoAuthService).createAuthMiddleware()
+			: authService.createAuthMiddleware({ allowSkipMFA: true, allowSkipPreviewAuth: true });
 		const protectedTypeFiles = [
 			'/types/nodes.json',
 			'/types/credentials.json',
 			'/types/node-versions.json',
 		];
 		protectedTypeFiles.forEach((path) => {
-			this.app.get(
-				path,
-				authService.createAuthMiddleware({ allowSkipMFA: true, allowSkipPreviewAuth: true }),
-				async (_, res: express.Response) => {
-					res.setHeader('Cache-Control', 'no-cache, must-revalidate');
-					res.sendFile(path.substring(1), {
-						root: staticCacheDir,
-					});
-				},
-			);
+			this.app.get(path, typeFilesAuthMiddleware, async (_, res: express.Response) => {
+				res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+				res.sendFile(path.substring(1), {
+					root: staticCacheDir,
+				});
+			});
 		});
 
 		if (frontendService) {
@@ -487,10 +487,16 @@ export class Server extends AbstractServer {
 		const authService = Container.get(AuthService);
 
 		if (frontendService) {
+			// When Cognito is enabled, use Cognito middleware so ALB-authenticated users
+			// get full settings on first load (no cookie needed).
+			const settingsAuthMiddleware = this.globalConfig.cognito.enabled
+				? Container.get(CognitoAuthService).createAuthMiddleware()
+				: authService.createAuthMiddleware({ allowSkipMFA: false, allowUnauthenticated: true });
+
 			// Returns the current settings for the UI
 			this.app.get(
 				`/${this.restEndpoint}/settings`,
-				authService.createAuthMiddleware({ allowSkipMFA: false, allowUnauthenticated: true }),
+				settingsAuthMiddleware,
 				ResponseHelper.send(async (req: AuthenticatedRequest) => {
 					return req.user
 						? await frontendService.getSettings()

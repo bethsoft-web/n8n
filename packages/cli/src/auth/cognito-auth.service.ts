@@ -276,6 +276,7 @@ export class CognitoAuthService {
 			firstName: identity.firstName ?? '',
 			lastName: identity.lastName ?? '',
 			password: '', // No password needed — auth is external
+			role: { slug: roleSlug },
 		});
 
 		// Save with role assignment
