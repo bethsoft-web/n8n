@@ -11,14 +11,14 @@ set -euo pipefail
 #   ECR_REPO_NAME    - ECR repository name (default: n8n)
 #   IMAGE_TAG        - Image tag (default: git short SHA)
 #   SKIP_BUILD       - Set to "true" to skip build (image must already exist locally)
-#   DOCKER_PLATFORM  - Target platform (default: linux/amd64 for Fargate)
+#   DOCKER_PLATFORM  - Target platform (default: linux/arm64 for ARM64 Fargate/Graviton)
 
 REGION="${AWS_REGION:-us-east-1}"
 REPO_NAME="${ECR_REPO_NAME:-n8n}"
 SKIP_BUILD="${SKIP_BUILD:-false}"
 
-# Force linux/amd64 for Fargate compatibility (avoids "exec format error" when building on ARM Macs)
-export DOCKER_PLATFORM="${DOCKER_PLATFORM:-linux/amd64}"
+# Default to linux/arm64 for native builds on ARM Macs targeting ARM64 Fargate (Graviton)
+export DOCKER_PLATFORM="${DOCKER_PLATFORM:-linux/arm64}"
 
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 REGISTRY="$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com"
