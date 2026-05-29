@@ -6,6 +6,7 @@ import { AiBuilderConfig } from './configs/ai-builder.config';
 import { AiConfig } from './configs/ai.config';
 import { AuthConfig } from './configs/auth.config';
 import { CacheConfig } from './configs/cache.config';
+import { CognitoConfig } from './configs/cognito.config';
 import { ChatHubConfig } from './configs/chat-hub.config';
 import { ChatTriggerConfig } from './configs/chat-trigger.config';
 import { CredentialsConfig } from './configs/credentials.config';
@@ -81,6 +82,7 @@ export { ExpressionEngineConfig } from './configs/expression-engine.config';
 export { PasswordConfig } from './configs/password.config';
 export { AgentsConfig } from './configs/agents.config';
 export { RedisConfig } from './configs/redis.config';
+export { CognitoConfig } from './configs/cognito.config';
 
 const protocolSchema = z.enum(['http', 'https']);
 
@@ -274,4 +276,7 @@ export class GlobalConfig {
 
 	@Nested
 	instanceSettingsLoader: InstanceSettingsLoaderConfig;
+
+	@Nested
+	cognito: CognitoConfig;
 }

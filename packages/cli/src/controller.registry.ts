@@ -22,6 +22,7 @@ import { LastActiveAtService } from './services/last-active-at.service';
 import { RateLimitService } from './services/rate-limit.service';
 
 import { AuthService } from '@/auth/auth.service';
+import { CognitoAuthService } from '@/auth/cognito-auth.service';
 import { UnauthenticatedError } from '@/errors/response-errors/unauthenticated.error';
 import { License } from '@/license';
 import { userHasScopes } from '@/permissions.ee/check-access';
@@ -177,14 +178,22 @@ export class ControllerRegistry {
 		}
 
 		if (!route.skipAuth) {
-			middlewares.push(
-				this.authService.createAuthMiddleware({
-					allowSkipMFA: route.allowSkipMFA ?? false,
-					allowSkipPreviewAuth: route.allowSkipPreviewAuth ?? false,
-					allowUnauthenticated: route.allowUnauthenticated ?? false,
-				}),
-				this.lastActiveAtService.middleware.bind(this.lastActiveAtService),
-			);
+			// When Cognito ALB auth is enabled, use the Cognito middleware instead of cookie-based auth
+			if (this.globalConfig.cognito.enabled) {
+				middlewares.push(
+					Container.get(CognitoAuthService).createAuthMiddleware(),
+					this.lastActiveAtService.middleware.bind(this.lastActiveAtService),
+				);
+			} else {
+				middlewares.push(
+					this.authService.createAuthMiddleware({
+						allowSkipMFA: route.allowSkipMFA ?? false,
+						allowSkipPreviewAuth: route.allowSkipPreviewAuth ?? false,
+						allowUnauthenticated: route.allowUnauthenticated ?? false,
+					}),
+					this.lastActiveAtService.middleware.bind(this.lastActiveAtService),
+				);
+			}
 		}
 
 		// LAYER 2b: User-based rate limiting with user source (AFTER auth)

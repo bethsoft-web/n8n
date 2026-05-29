@@ -83,12 +83,17 @@ export function isSsoCurrentAuthenticationMethod(): boolean {
 	return (
 		isSamlCurrentAuthenticationMethod() ||
 		isLdapCurrentAuthenticationMethod() ||
-		isOidcCurrentAuthenticationMethod()
+		isOidcCurrentAuthenticationMethod() ||
+		isCognitoCurrentAuthenticationMethod()
 	);
 }
 
 export function isEmailCurrentAuthenticationMethod(): boolean {
 	return getCurrentAuthenticationMethod() === 'email';
+}
+
+export function isCognitoCurrentAuthenticationMethod(): boolean {
+	return getCurrentAuthenticationMethod() === 'cognito';
 }
 
 export function isSsoJustInTimeProvisioningEnabled(): boolean {

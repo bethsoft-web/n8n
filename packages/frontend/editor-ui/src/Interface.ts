@@ -389,6 +389,7 @@ export const enum UserManagementAuthenticationMethod {
 	Ldap = 'ldap',
 	Saml = 'saml',
 	Oidc = 'oidc',
+	Cognito = 'cognito',
 }
 
 export interface IPermissionGroup {

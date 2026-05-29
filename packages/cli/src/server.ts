@@ -161,6 +161,13 @@ export class Server extends AbstractServer {
 			await Container.get(PrometheusMetricsService).init(this.app);
 		}
 
+		// When Cognito is enabled, auto-set the authentication method on startup
+		if (this.globalConfig.cognito.enabled) {
+			const { setCurrentAuthenticationMethod } = await import('@/sso.ee/sso-helpers');
+			await setCurrentAuthenticationMethod('cognito');
+			this.logger.info('Cognito ALB authentication is enabled — set as sole auth method');
+		}
+
 		const { frontendService } = this;
 		if (frontendService) {
 			await this.externalHooks.run('frontend.settings', [await frontendService.getSettings()]);
@@ -175,14 +182,17 @@ export class Server extends AbstractServer {
 		// API key auth is registered first so existing behavior is preserved.
 		// Additional strategies (e.g. scoped JWT from the token-exchange module)
 		// can be appended later during their own module initialization.
-		const registry = Container.get(AuthStrategyRegistry);
-		registry.register(Container.get(ApiKeyAuthStrategy));
+		// When Cognito is enabled, we skip API key registration since there's no public API.
+		if (!this.globalConfig.cognito.enabled) {
+			const registry = Container.get(AuthStrategyRegistry);
+			registry.register(Container.get(ApiKeyAuthStrategy));
+		}
 
 		// ----------------------------------------
 		// Public API
 		// ----------------------------------------
 
-		if (isApiEnabled()) {
+		if (isApiEnabled() && !this.globalConfig.cognito.enabled) {
 			const { apiRouters, apiLatestVersion } = await loadPublicApiVersions(publicApiEndpoint);
 			this.app.use(...apiRouters);
 			if (frontendService) {
