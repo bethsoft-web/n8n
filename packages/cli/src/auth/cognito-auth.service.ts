@@ -322,29 +322,16 @@ export class CognitoAuthService {
 			roleSlug = 'global:owner';
 		}
 
-		// Create the user with the mapped role
-		const newUser = this.userRepository.create({
+		// Use createUserWithProject to ensure personal project is created
+		const { user: newUser } = await this.userRepository.createUserWithProject({
 			email: identity.email,
 			firstName: identity.firstName ?? '',
 			lastName: identity.lastName ?? '',
-			password: '', // No password needed — auth is external
+			password: '',
 			role: { slug: roleSlug },
 		});
 
-		// Save with role assignment
-		const savedUser = await this.userRepository.save(newUser);
-
-		// Now fetch with role relation to get the full user
-		const fullUser = await this.userRepository.findOne({
-			where: { id: savedUser.id },
-			relations: ['role'],
-		});
-
-		if (!fullUser) {
-			throw new AuthError('Failed to create user');
-		}
-
-		return fullUser;
+		return newUser;
 	}
 
 	// ---------------------------------------------------------------------------
