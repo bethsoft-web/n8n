@@ -11,7 +11,9 @@ import { InstanceSettings } from 'n8n-core';
 import { parse as parseUrl } from 'url';
 import { Server as WSServer } from 'ws';
 
+import { GlobalConfig } from '@n8n/config';
 import { AuthService } from '@/auth/auth.service';
+import { CognitoAuthService } from '@/auth/cognito-auth.service';
 import { BadRequestError } from '@/errors/response-errors/bad-request.error';
 import { Publisher } from '@/scaling/pubsub/publisher.service';
 import { TypedEmitter } from '@/typed-emitter';
@@ -83,7 +85,13 @@ export class Push extends TypedEmitter<PushEvents> {
 
 						const response = new ServerResponse(request);
 						response.writeHead = (statusCode) => {
-							if (statusCode > 200) ws.close();
+							if (statusCode > 200) {
+								this.logger.warn('Push WebSocket auth failed', {
+									statusCode,
+									hasOidcHeader: !!request.headers['x-amzn-oidc-data'],
+								});
+								ws.close();
+							}
 							return response;
 						};
 
@@ -98,10 +106,15 @@ export class Push extends TypedEmitter<PushEvents> {
 
 	/** Sets up the push endpoint that the frontend connects to. */
 	setupPushHandler(restEndpoint: string, app: Application) {
+		const globalConfig = Container.get(GlobalConfig);
+		const authMiddleware = globalConfig.cognito.enabled
+			? Container.get(CognitoAuthService).createAuthMiddleware()
+			: this.authService.createAuthMiddleware({ allowSkipMFA: false });
+
 		app.use(
 			`/${restEndpoint}/push`,
 
-			this.authService.createAuthMiddleware({ allowSkipMFA: false }),
+			authMiddleware,
 			(req, res) => {
 				if (!isWebSocketPushRequest(req) && !isSSEPushRequest(req)) {
 					throw new BadRequestError('Request is not a PushRequest');
