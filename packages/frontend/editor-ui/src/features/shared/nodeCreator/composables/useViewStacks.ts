@@ -482,6 +482,12 @@ export const useViewStacks = defineStore('nodeCreatorViewStacks', () => {
 					// AI Code node could have any connection type so we don't want to display it
 					// in the compatible connection view as it would be displayed in all of them
 					if (i.key === AI_CODE_NODE_TYPE) return false;
+					// Only allow AWS Bedrock for language model nodes
+					if (
+						connectionType === 'ai_languageModel' &&
+						i.key !== '@n8n/n8n-nodes-langchain.lmChatAwsBedrock'
+					)
+						return false;
 					const displayNode = nodesByConnectionType[connectionType].includes(i.key);
 
 					// TODO: Filtering works currently fine for displaying compatible node when dropping
