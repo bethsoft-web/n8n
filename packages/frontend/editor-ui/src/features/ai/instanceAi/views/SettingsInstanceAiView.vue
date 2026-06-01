@@ -8,7 +8,6 @@ import type { InstanceAiPermissions, InstanceAiPermissionMode } from '@n8n/api-t
 import type { BaseTextKey } from '@n8n/i18n';
 import { useSettingsStore } from '@/app/stores/settings.store';
 import { useInstanceAiSettingsStore } from '../instanceAiSettings.store';
-import ModelSection from '../components/settings/ModelSection.vue';
 import SandboxSection from '../components/settings/SandboxSection.vue';
 import MemorySection from '../components/settings/MemorySection.vue';
 import SearchSection from '../components/settings/SearchSection.vue';
@@ -182,12 +181,6 @@ function handlePermissionChange(key: keyof InstanceAiPermissions, value: Instanc
 						</div>
 					</div>
 				</template>
-
-				<div v-if="!store.isProxyEnabled && !store.isCloudManaged" :class="$style.card">
-					<div :class="$style.sectionBlock">
-						<ModelSection />
-					</div>
-				</div>
 
 				<template v-if="isAdmin">
 					<div v-if="!store.isProxyEnabled && !store.isCloudManaged" :class="$style.card">

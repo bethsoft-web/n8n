@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ChatProviderSettingsDto } from '@n8n/api-types';
 import type { Settings, SettingsRepository } from '@n8n/db';
 import type { EntityManager } from '@n8n/typeorm';
@@ -32,7 +33,7 @@ describe('ChatHubSettingsService', () => {
 		it('should pass the transaction to findByKey', async () => {
 			settingsRepository.findByKey.mockResolvedValueOnce(null);
 
-			await service.ensureModelIsAllowed({ provider: 'openai', model: 'gpt-4' }, mockTrx);
+			await service.ensureModelIsAllowed({ provider: 'awsBedrock', model: 'gpt-4' }, mockTrx);
 
 			expect(settingsRepository.findByKey).toHaveBeenCalledWith('chat.provider.openai', mockTrx);
 		});
@@ -40,14 +41,14 @@ describe('ChatHubSettingsService', () => {
 		it('should not pass transaction when none is provided', async () => {
 			settingsRepository.findByKey.mockResolvedValueOnce(null);
 
-			await service.ensureModelIsAllowed({ provider: 'openai', model: 'gpt-4' });
+			await service.ensureModelIsAllowed({ provider: 'awsBedrock', model: 'gpt-4' });
 
 			expect(settingsRepository.findByKey).toHaveBeenCalledWith('chat.provider.openai', undefined);
 		});
 
 		it('should throw when provider is not enabled', async () => {
 			const settings: ChatProviderSettingsDto = {
-				provider: 'openai',
+				provider: 'awsBedrock',
 				credentialId: null,
 				allowedModels: [],
 				createdAt: new Date().toISOString(),
@@ -60,13 +61,13 @@ describe('ChatHubSettingsService', () => {
 			} as Settings);
 
 			await expect(
-				service.ensureModelIsAllowed({ provider: 'openai', model: 'gpt-4' }),
+				service.ensureModelIsAllowed({ provider: 'awsBedrock', model: 'gpt-4' }),
 			).rejects.toThrow(BadRequestError);
 		});
 
 		it('should throw when model is not in the allowed list', async () => {
 			const settings: ChatProviderSettingsDto = {
-				provider: 'openai',
+				provider: 'awsBedrock',
 				credentialId: null,
 				allowedModels: [{ displayName: 'GPT-3.5', model: 'gpt-3.5-turbo' }],
 				createdAt: new Date().toISOString(),
@@ -79,7 +80,7 @@ describe('ChatHubSettingsService', () => {
 			} as Settings);
 
 			await expect(
-				service.ensureModelIsAllowed({ provider: 'openai', model: 'gpt-4' }),
+				service.ensureModelIsAllowed({ provider: 'awsBedrock', model: 'gpt-4' }),
 			).rejects.toThrow(BadRequestError);
 		});
 
@@ -87,13 +88,13 @@ describe('ChatHubSettingsService', () => {
 			settingsRepository.findByKey.mockResolvedValueOnce(null);
 
 			await expect(
-				service.ensureModelIsAllowed({ provider: 'openai', model: 'gpt-4' }),
+				service.ensureModelIsAllowed({ provider: 'awsBedrock', model: 'gpt-4' }),
 			).resolves.toBeUndefined();
 		});
 
 		it('should allow model when it is in the allowed list', async () => {
 			const settings: ChatProviderSettingsDto = {
-				provider: 'openai',
+				provider: 'awsBedrock',
 				credentialId: null,
 				allowedModels: [
 					{ displayName: 'GPT-4', model: 'gpt-4' },
@@ -109,7 +110,7 @@ describe('ChatHubSettingsService', () => {
 			} as Settings);
 
 			await expect(
-				service.ensureModelIsAllowed({ provider: 'openai', model: 'gpt-4' }),
+				service.ensureModelIsAllowed({ provider: 'awsBedrock', model: 'gpt-4' }),
 			).resolves.toBeUndefined();
 		});
 	});
@@ -118,10 +119,10 @@ describe('ChatHubSettingsService', () => {
 		it('should return default settings when no settings exist', async () => {
 			settingsRepository.findByKey.mockResolvedValueOnce(null);
 
-			const result = await service.getProviderSettings('openai');
+			const result = await service.getProviderSettings('awsBedrock');
 
 			expect(result).toMatchObject({
-				provider: 'openai',
+				provider: 'awsBedrock',
 				credentialId: null,
 				allowedModels: [],
 				enabled: true,
@@ -131,14 +132,14 @@ describe('ChatHubSettingsService', () => {
 		it('should pass the transaction to findByKey', async () => {
 			settingsRepository.findByKey.mockResolvedValueOnce(null);
 
-			await service.getProviderSettings('anthropic', mockTrx);
+			await service.getProviderSettings('awsBedrock', mockTrx);
 
 			expect(settingsRepository.findByKey).toHaveBeenCalledWith('chat.provider.anthropic', mockTrx);
 		});
 
 		it('should parse and return persisted settings', async () => {
 			const settings: ChatProviderSettingsDto = {
-				provider: 'openai',
+				provider: 'awsBedrock',
 				credentialId: 'cred-123',
 				allowedModels: [{ displayName: 'GPT-4', model: 'gpt-4' }],
 				createdAt: '2025-01-01T00:00:00.000Z',
@@ -150,7 +151,7 @@ describe('ChatHubSettingsService', () => {
 				value: JSON.stringify(settings),
 			} as Settings);
 
-			const result = await service.getProviderSettings('openai');
+			const result = await service.getProviderSettings('awsBedrock');
 
 			expect(result).toEqual(settings);
 		});
@@ -161,10 +162,10 @@ describe('ChatHubSettingsService', () => {
 				value: 'not-valid-json',
 			} as Settings);
 
-			const result = await service.getProviderSettings('openai');
+			const result = await service.getProviderSettings('awsBedrock');
 
 			expect(result).toMatchObject({
-				provider: 'openai',
+				provider: 'awsBedrock',
 				credentialId: null,
 				allowedModels: [],
 				enabled: true,

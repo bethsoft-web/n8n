@@ -55,100 +55,18 @@ type ProviderRegistry = {
 
 /**
  * Registry of language model providers.
- * Each entry maps a provider id to a builder that loads its @ai-sdk/* package
- * and instantiates the model. Credentials are Zod-validated before being passed in.
+ * Only AWS Bedrock is supported — credentials are inherited from the IAM role.
  */
 const LANGUAGE_PROVIDERS: ProviderRegistry = {
-	openai: {
-		build: (creds, model, fetch) => {
-			const { createOpenAI } = require('@ai-sdk/openai') as typeof import('@ai-sdk/openai');
-			return createOpenAI({ ...creds, fetch })(model);
-		},
-	},
-	anthropic: {
-		build: (creds, model, fetch) => {
-			const { createAnthropic } =
-				require('@ai-sdk/anthropic') as typeof import('@ai-sdk/anthropic');
-			return createAnthropic({ ...creds, fetch })(model);
-		},
-	},
-	google: {
-		build: (creds, model, fetch) => {
-			const { createGoogleGenerativeAI } =
-				require('@ai-sdk/google') as typeof import('@ai-sdk/google');
-			return createGoogleGenerativeAI({ ...creds, fetch })(model);
-		},
-	},
-	xai: {
-		build: (creds, model, fetch) => {
-			const { createXai } = require('@ai-sdk/xai') as typeof import('@ai-sdk/xai');
-			return createXai({ ...creds, fetch })(model);
-		},
-	},
-	groq: {
-		build: (creds, model, fetch) => {
-			const { createGroq } = require('@ai-sdk/groq') as typeof import('@ai-sdk/groq');
-			return createGroq({ ...creds, fetch })(model);
-		},
-	},
-	deepseek: {
-		build: (creds, model, fetch) => {
-			const { createDeepSeek } = require('@ai-sdk/deepseek') as typeof import('@ai-sdk/deepseek');
-			return createDeepSeek({ ...creds, fetch })(model);
-		},
-	},
-	cohere: {
-		build: (creds, model, fetch) => {
-			const { createCohere } = require('@ai-sdk/cohere') as typeof import('@ai-sdk/cohere');
-			return createCohere({ ...creds, fetch })(model);
-		},
-	},
-	mistral: {
-		build: (creds, model, fetch) => {
-			const { createMistral } = require('@ai-sdk/mistral') as typeof import('@ai-sdk/mistral');
-			return createMistral({ ...creds, fetch })(model);
-		},
-	},
-	vercel: {
-		build: (creds, model, fetch) => {
-			const { createGateway } = require('@ai-sdk/gateway') as typeof import('@ai-sdk/gateway');
-			return createGateway({ ...creds, fetch })(model);
-		},
-	},
-	openrouter: {
-		build: (creds, model, fetch) => {
-			const { createOpenRouter } =
-				require('@openrouter/ai-sdk-provider') as typeof import('@openrouter/ai-sdk-provider');
-			return createOpenRouter({ apiKey: creds.apiKey, baseURL: creds.baseURL, fetch })(model);
-		},
-	},
-	'azure-openai': {
-		build: (creds, model, fetch) => {
-			const { createAzure } = require('@ai-sdk/azure') as typeof import('@ai-sdk/azure');
-			const { baseURL, resourceName, apiVersion, apiKey } = creds;
-			let normalizedBaseURL = baseURL;
-			// SDK expects url like `https://resourceName.openai.azure.com/openai`
-			if (normalizedBaseURL) {
-				const url = new URL(normalizedBaseURL);
-				if (!url.pathname.endsWith('/openai')) {
-					url.pathname = url.pathname.replace(/\/?$/, '/openai');
-					normalizedBaseURL = url.toString();
-				}
-			}
-			return createAzure({ resourceName, apiKey, baseURL: normalizedBaseURL, apiVersion, fetch })(
-				model,
-			);
-		},
-	},
 	'aws-bedrock': {
 		build: (creds, model, fetch) => {
 			const { createAmazonBedrock } =
 				require('@ai-sdk/amazon-bedrock') as typeof import('@ai-sdk/amazon-bedrock');
 			return createAmazonBedrock({
-				region: creds.region,
-				accessKeyId: creds.accessKeyId,
-				secretAccessKey: creds.secretAccessKey,
-				sessionToken: creds.sessionToken,
+				...(creds.region ? { region: creds.region } : {}),
+				...(creds.accessKeyId ? { accessKeyId: creds.accessKeyId } : {}),
+				...(creds.secretAccessKey ? { secretAccessKey: creds.secretAccessKey } : {}),
+				...(creds.sessionToken ? { sessionToken: creds.sessionToken } : {}),
 				fetch,
 			})(model);
 		},

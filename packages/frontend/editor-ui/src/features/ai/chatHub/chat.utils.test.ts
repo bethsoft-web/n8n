@@ -159,7 +159,7 @@ describe('isWaitingForApproval', () => {
 		type: 'ai',
 		name: 'AI',
 		content,
-		provider: 'openai',
+		provider: 'awsBedrock',
 		model: 'gpt-4',
 		workflowId: null,
 		agentId: null,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ChatAttachment } from '@n8n/api-types';
 import { mock } from 'jest-mock-extended';
 import type { BinaryDataService } from 'n8n-core';

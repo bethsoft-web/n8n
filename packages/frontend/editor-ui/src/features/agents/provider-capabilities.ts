@@ -9,16 +9,7 @@ export interface ProviderCapabilities {
 }
 
 export const PROVIDER_CAPABILITIES: Record<string, ProviderCapabilities> = {
-	anthropic: { thinking: 'budgetTokens' },
-	openai: { thinking: 'reasoningEffort' },
-	google: { thinking: false },
-	xai: { thinking: false },
-	groq: { thinking: false },
-	deepseek: { thinking: false },
-	mistral: { thinking: false },
-	openrouter: { thinking: false },
-	cohere: { thinking: false },
-	ollama: { thinking: false },
+	'aws-bedrock': { thinking: 'budgetTokens' },
 };
 
 export const REASONING_EFFORT_OPTIONS = ['low', 'medium', 'high'] as const;

@@ -8,24 +8,20 @@ export { Tool };
 // Model constants
 // ---------------------------------------------------------------------------
 
-export const SONNET_MODEL = 'anthropic/claude-sonnet-4-6';
-export const HAIKU_MODEL = 'anthropic/claude-haiku-4-5-20251001';
+export const SONNET_MODEL = 'aws-bedrock/anthropic.claude-sonnet-4-6-v1';
+export const HAIKU_MODEL = 'aws-bedrock/anthropic.claude-haiku-4-5-20251001-v1';
 
 // ---------------------------------------------------------------------------
-// API key resolution
+// API key resolution (optional — Bedrock uses IAM credential chain)
 // ---------------------------------------------------------------------------
 
-function getApiKey(): string {
-	const key =
+function getApiKey(): string | undefined {
+	return (
 		process.env.N8N_INSTANCE_AI_MODEL_API_KEY ??
 		process.env.N8N_AI_ANTHROPIC_KEY ??
-		process.env.ANTHROPIC_API_KEY;
-	if (!key) {
-		throw new Error(
-			'Missing API key. Set N8N_INSTANCE_AI_MODEL_API_KEY, N8N_AI_ANTHROPIC_KEY, or ANTHROPIC_API_KEY in your environment.',
-		);
-	}
-	return key;
+		process.env.ANTHROPIC_API_KEY ??
+		undefined
+	);
 }
 
 // ---------------------------------------------------------------------------
@@ -53,10 +49,9 @@ export function createEvalAgent(
 		thinking?: 'adaptive' | 'off' | { budgetTokens: number };
 	},
 ): Agent {
-	const agent = new Agent(name).model({
-		id: options.model ?? SONNET_MODEL,
-		apiKey: getApiKey(),
-	});
+	const modelId = options.model ?? SONNET_MODEL;
+	const apiKey = getApiKey();
+	const agent = new Agent(name).model(apiKey ? { id: modelId, apiKey } : modelId);
 
 	if (options.cache) {
 		agent.instructions(options.instructions, CACHE_PROVIDER_OPTS);

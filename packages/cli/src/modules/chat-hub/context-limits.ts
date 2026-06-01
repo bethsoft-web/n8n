@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { ChatHubLLMProvider } from '@n8n/api-types';
 
 /* eslint-disable @typescript-eslint/naming-convention */

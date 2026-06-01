@@ -50,7 +50,7 @@ function createMockSession(overrides: Partial<ChatHubSessionDto> = {}): ChatHubS
 		updatedAt: '2024-01-01T00:00:00.000Z',
 		lastMessageAt: '2024-01-01T00:00:00.000Z',
 		credentialId: null,
-		provider: 'openai',
+		provider: 'awsBedrock',
 		model: 'gpt-4',
 		workflowId: null,
 		agentId: null,
@@ -345,10 +345,10 @@ describe('chat.store - tool methods', () => {
 
 		function createModelsResponse(customAgentModels: Array<typeof CUSTOM_AGENT_MODEL> = []) {
 			return {
-				openai: {
+				awsBedrock: {
 					models: [
 						{
-							model: { provider: 'openai' as const, model: 'gpt-4' },
+							model: { provider: 'awsBedrock' as const, model: 'gpt-4' },
 							name: 'GPT-4',
 							description: null,
 							icon: null,
@@ -364,12 +364,6 @@ describe('chat.store - tool methods', () => {
 						},
 					],
 				},
-				anthropic: { models: [] },
-				google: { models: [] },
-				azureOpenAi: { models: [] },
-				azureEntraId: { models: [] },
-				ollama: { models: [] },
-				awsBedrock: { models: [] },
 				'custom-agent': { models: customAgentModels },
 			};
 		}
@@ -378,11 +372,11 @@ describe('chat.store - tool methods', () => {
 			const response = createModelsResponse();
 			vi.spyOn(chatApi, 'fetchChatModelsApi').mockResolvedValue(response as never);
 
-			await store.fetchAgents({ openai: 'cred-1' });
+			await store.fetchAgents({ awsBedrock: 'cred-1' });
 
 			expect(chatApi.fetchChatModelsApi).toHaveBeenCalledWith(
 				{},
-				{ credentials: { openai: 'cred-1' } },
+				{ credentials: { awsBedrock: 'cred-1' } },
 			);
 			expect(store.agents).toEqual(response);
 		});
@@ -391,7 +385,7 @@ describe('chat.store - tool methods', () => {
 			const response = createModelsResponse([CUSTOM_AGENT_MODEL]);
 			vi.spyOn(chatApi, 'fetchChatModelsApi').mockResolvedValue(response as never);
 
-			await store.fetchAgents({ openai: 'cred-1' });
+			await store.fetchAgents({ awsBedrock: 'cred-1' });
 
 			expect(store.agents['custom-agent'].models).toHaveLength(1);
 			expect(store.agents['custom-agent'].models[0].name).toBe('My Custom Agent');
@@ -406,7 +400,7 @@ describe('chat.store - tool methods', () => {
 				const response = createModelsResponse([CUSTOM_AGENT_MODEL]);
 				vi.spyOn(chatApi, 'fetchChatModelsApi').mockResolvedValue(response as never);
 
-				await store.fetchAgents({ openai: 'cred-1' });
+				await store.fetchAgents({ awsBedrock: 'cred-1' });
 
 				const agent = store.getCustomAgent('agent-1');
 				expect(agent).toBeDefined();
@@ -417,7 +411,7 @@ describe('chat.store - tool methods', () => {
 				const response = createModelsResponse([CUSTOM_AGENT_MODEL]);
 				vi.spyOn(chatApi, 'fetchChatModelsApi').mockResolvedValue(response as never);
 
-				await store.fetchAgents({ openai: 'cred-1' });
+				await store.fetchAgents({ awsBedrock: 'cred-1' });
 
 				expect(store.getCustomAgent('nonexistent')).toBeUndefined();
 			});

@@ -85,7 +85,7 @@ const MOCK_AGENT = {
 	name: 'Test Agent',
 	description: 'A test agent',
 	systemPrompt: 'You are a helpful assistant',
-	provider: 'openai' as const,
+	provider: 'awsBedrock' as const,
 	model: 'gpt-4',
 	credentialId: 'cred-1',
 	toolIds: ['tool-1'],
@@ -95,7 +95,7 @@ const MOCK_AGENT = {
 };
 
 const MOCK_AGENT_MODEL: ChatModelDto = {
-	model: { provider: 'openai', model: 'gpt-4' },
+	model: { provider: 'awsBedrock', model: 'gpt-4' },
 	name: 'GPT-4',
 	description: null,
 	icon: null,
@@ -211,12 +211,6 @@ describe('AgentEditorModal', () => {
 		chatStore.getAgent = vi.fn().mockReturnValue(MOCK_AGENT_MODEL);
 
 		mockFetchChatModels.mockResolvedValue({
-			openai: { models: [] },
-			anthropic: { models: [] },
-			google: { models: [] },
-			azureOpenAi: { models: [] },
-			azureEntraId: { models: [] },
-			ollama: { models: [] },
 			awsBedrock: { models: [] },
 		});
 
@@ -305,7 +299,7 @@ describe('AgentEditorModal', () => {
 		it('should have save button enabled when form is valid', async () => {
 			const { getByText } = renderModal({
 				agentId: 'agent-1',
-				credentials: { openai: 'cred-1' },
+				credentials: { awsBedrock: 'cred-1' },
 			});
 
 			await waitFor(() => {
@@ -317,7 +311,7 @@ describe('AgentEditorModal', () => {
 		it('should call updateCustomAgent when saving', async () => {
 			const { getByText } = renderModal({
 				agentId: 'agent-1',
-				credentials: { openai: 'cred-1' },
+				credentials: { awsBedrock: 'cred-1' },
 			});
 
 			await waitFor(() => {
@@ -334,12 +328,12 @@ describe('AgentEditorModal', () => {
 					expect.objectContaining({
 						name: 'Test Agent',
 						systemPrompt: 'You are a helpful assistant',
-						provider: 'openai',
+						provider: 'awsBedrock',
 						model: 'gpt-4',
 					}),
 					[], // newFiles
 					[], // removedFileKnowledgeIds
-					{ openai: 'cred-1' },
+					{ awsBedrock: 'cred-1' },
 				);
 				expect(uiStore.closeModal).toHaveBeenCalledWith(MODAL_NAME);
 				expect(mockShowMessage).toHaveBeenCalled();
@@ -352,7 +346,7 @@ describe('AgentEditorModal', () => {
 
 			const { getByText } = renderModal({
 				agentId: 'agent-1',
-				credentials: { openai: 'cred-1' },
+				credentials: { awsBedrock: 'cred-1' },
 			});
 
 			await waitFor(() => {
@@ -384,7 +378,7 @@ describe('AgentEditorModal', () => {
 
 			const { container } = renderModal({
 				agentId: 'agent-1',
-				credentials: { openai: 'cred-1' },
+				credentials: { awsBedrock: 'cred-1' },
 			});
 
 			const deleteButton = container.querySelector('.deleteButton') as HTMLElement;
@@ -393,7 +387,7 @@ describe('AgentEditorModal', () => {
 			await waitFor(() => {
 				expect(mockConfirm).toHaveBeenCalled();
 				expect(chatStore.deleteCustomAgent).toHaveBeenCalledWith('agent-1', {
-					openai: 'cred-1',
+					awsBedrock: 'cred-1',
 				});
 				expect(onCloseMock).toHaveBeenCalled();
 				expect(uiStore.closeModal).toHaveBeenCalledWith(MODAL_NAME);
@@ -421,7 +415,7 @@ describe('AgentEditorModal', () => {
 
 			const { container } = renderModal({
 				agentId: 'agent-1',
-				credentials: { openai: 'cred-1' },
+				credentials: { awsBedrock: 'cred-1' },
 			});
 
 			const deleteButton = container.querySelector('.deleteButton') as HTMLElement;
@@ -466,7 +460,7 @@ describe('AgentEditorModal', () => {
 					modalName: MODAL_NAME,
 					data: {
 						agentId: 'agent-1',
-						credentials: { openai: 'cred-1' },
+						credentials: { awsBedrock: 'cred-1' },
 						onClose: onCloseMock,
 						onCreateCustomAgent: onCreateMock,
 					},
@@ -546,7 +540,7 @@ describe('AgentEditorModal', () => {
 					agentUploadMaxSizeMb: 4 / (1024 * 1024),
 					semanticSearch: {
 						vectorStore: { provider: 'pinecone', credentialId: null },
-						embeddingModel: { provider: 'openai', credentialId: null },
+						embeddingModel: { provider: 'awsBedrock', credentialId: null },
 					},
 				},
 			} as FrontendModuleSettings;
@@ -557,12 +551,6 @@ describe('AgentEditorModal', () => {
 			});
 
 			mockFetchChatModels.mockResolvedValue({
-				openai: { models: [] },
-				anthropic: { models: [] },
-				google: { models: [] },
-				azureOpenAi: { models: [] },
-				azureEntraId: { models: [] },
-				ollama: { models: [] },
 				awsBedrock: { models: [] },
 			});
 			mockUpdateAgentApi.mockResolvedValue(undefined);
@@ -578,7 +566,7 @@ describe('AgentEditorModal', () => {
 
 			const { findByRole, getByText } = renderModal({
 				agentId: 'agent-1',
-				credentials: { openai: 'cred-1' },
+				credentials: { awsBedrock: 'cred-1' },
 			});
 
 			await findByRole('alert');
@@ -599,7 +587,7 @@ describe('AgentEditorModal', () => {
 
 			const { findByText, getByText, queryByText } = renderModal({
 				agentId: 'agent-1',
-				credentials: { openai: 'cred-1' },
+				credentials: { awsBedrock: 'cred-1' },
 			});
 
 			await findByText('chatHub.agent.editor.files.indexing');
@@ -610,7 +598,7 @@ describe('AgentEditorModal', () => {
 		it('should call the upload endpoint once per chunk when multiple files exceed the chunk size', async () => {
 			const { container, getByRole, findByRole } = renderModal({
 				agentId: 'agent-1',
-				credentials: { openai: 'cred-1' },
+				credentials: { awsBedrock: 'cred-1' },
 			});
 
 			await findByRole('button', { name: 'chatHub.agent.editor.save' });
@@ -646,7 +634,7 @@ describe('AgentEditorModal', () => {
 
 			const { findByText, queryByText, getByRole } = renderModal({
 				agentId: 'agent-1',
-				credentials: { openai: 'cred-1' },
+				credentials: { awsBedrock: 'cred-1' },
 			});
 
 			const fileNameEl = await findByText('indexed.pdf');

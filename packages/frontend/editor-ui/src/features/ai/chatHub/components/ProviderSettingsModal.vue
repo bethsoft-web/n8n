@@ -348,25 +348,6 @@ watch(
 						/>
 					</label>
 
-					<label v-if="data.provider === 'openai'" :class="$style.container">
-						<N8nText color="text-dark">
-							{{ i18n.baseText('settings.chatHub.providers.modal.edit.responsesApi.label') }}
-						</N8nText>
-						<N8nText color="text-light" size="small">
-							{{ i18n.baseText('settings.chatHub.providers.modal.edit.responsesApi.description') }}
-						</N8nText>
-						<N8nSwitch
-							size="large"
-							:model-value="settings.responsesApiEnabled ?? true"
-							:disabled="props.data.disabled"
-							@update:model-value="
-								(v: boolean) => {
-									settings!.responsesApiEnabled = v;
-								}
-							"
-						/>
-					</label>
-
 					<label :class="$style.container">
 						<N8nText color="text-dark">
 							{{ i18n.baseText('settings.chatHub.providers.modal.edit.contextWindowLength.label') }}
