@@ -48,161 +48,19 @@ export class LmChatAwsBedrock implements INodeType {
 
 		outputs: [NodeConnectionTypes.AiLanguageModel],
 		outputNames: ['Model'],
-		credentials: [
-			{
-				name: 'aws',
-				required: true,
-			},
-		],
+		credentials: [],
 		requestDefaults: {
 			ignoreHttpStatusErrors: true,
-			baseURL: '=https://bedrock.{{$credentials?.region ?? "eu-central-1"}}.amazonaws.com',
+			baseURL: `=https://bedrock.${process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION ?? 'us-east-1'}.amazonaws.com`,
 		},
 		properties: [
 			getConnectionHintNoticeField([NodeConnectionTypes.AiChain, NodeConnectionTypes.AiChain]),
 			{
-				displayName: 'Model Source',
-				name: 'modelSource',
-				type: 'options',
-				displayOptions: {
-					show: {
-						'@version': [{ _cnd: { gte: 1.1 } }],
-					},
-				},
-				options: [
-					{
-						name: 'On-Demand Models',
-						value: 'onDemand',
-						description: 'Standard foundation models with on-demand pricing',
-					},
-					{
-						name: 'Inference Profiles',
-						value: 'inferenceProfile',
-						description:
-							'Cross-region inference profiles (required for models like Claude Sonnet 4 and others)',
-					},
-				],
-				default: 'onDemand',
-				description: 'Choose between on-demand foundation models or inference profiles',
-			},
-			{
 				displayName: 'Model',
 				name: 'model',
-				type: 'options',
-				allowArbitraryValues: true, // Hide issues when model name is specified in the expression and does not match any of the options
-				description:
-					'The model which will generate the completion. <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/foundation-models.html">Learn more</a>.',
-				displayOptions: {
-					hide: {
-						modelSource: ['inferenceProfile'],
-					},
-				},
-				typeOptions: {
-					loadOptionsDependsOn: ['modelSource'],
-					loadOptions: {
-						routing: {
-							request: {
-								method: 'GET',
-								url: '/foundation-models?&byOutputModality=TEXT&byInferenceType=ON_DEMAND',
-							},
-							output: {
-								postReceive: [
-									{
-										type: 'rootProperty',
-										properties: {
-											property: 'modelSummaries',
-										},
-									},
-									{
-										type: 'setKeyValue',
-										properties: {
-											name: '={{$responseItem.modelName}}',
-											description: '={{$responseItem.modelArn}}',
-											value: '={{$responseItem.modelId}}',
-										},
-									},
-									{
-										type: 'sort',
-										properties: {
-											key: 'name',
-										},
-									},
-								],
-							},
-						},
-					},
-				},
-				routing: {
-					send: {
-						type: 'body',
-						property: 'model',
-					},
-				},
-				default: '',
-				builderHint: {
-					propertyHint:
-						'Default to the latest Claude Sonnet on Bedrock (anthropic.claude-sonnet-4-6 family). For Claude Sonnet 4+, switch Model Source to Inference Profiles. Avoid claude-sonnet-4-5, claude-3.x, and non-Claude legacy models unless requested.',
-				},
-			},
-			{
-				displayName: 'Model',
-				name: 'model',
-				type: 'options',
-				allowArbitraryValues: true,
-				description:
-					'The inference profile which will generate the completion. <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-use.html">Learn more</a>.',
-				displayOptions: {
-					show: {
-						modelSource: ['inferenceProfile'],
-					},
-				},
-				typeOptions: {
-					loadOptionsDependsOn: ['modelSource'],
-					loadOptions: {
-						routing: {
-							request: {
-								method: 'GET',
-								url: '/inference-profiles?maxResults=1000',
-							},
-							output: {
-								postReceive: [
-									{
-										type: 'rootProperty',
-										properties: {
-											property: 'inferenceProfileSummaries',
-										},
-									},
-									{
-										type: 'setKeyValue',
-										properties: {
-											name: '={{$responseItem.inferenceProfileName}}',
-											description:
-												'={{$responseItem.description || $responseItem.inferenceProfileArn}}',
-											value: '={{$responseItem.inferenceProfileId}}',
-										},
-									},
-									{
-										type: 'sort',
-										properties: {
-											key: 'name',
-										},
-									},
-								],
-							},
-						},
-					},
-				},
-				routing: {
-					send: {
-						type: 'body',
-						property: 'model',
-					},
-				},
-				default: '',
-				builderHint: {
-					propertyHint:
-						'Default to the latest Claude Sonnet inference profile (anthropic.claude-sonnet-4-6 family). Avoid claude-sonnet-4-5 and claude-3.x profiles unless specifically requested.',
-				},
+				type: 'string',
+				default: 'anthropic.claude-sonnet-4-6-v1',
+				description: 'The Bedrock model ID or inference profile ARN to use for completion.',
 			},
 			{
 				displayName: 'Options',
@@ -234,35 +92,24 @@ export class LmChatAwsBedrock implements INodeType {
 	};
 
 	async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
-		const credentials = await this.getCredentials<{
-			region: string;
-			secretAccessKey: string;
-			accessKeyId: string;
-			sessionToken: string;
-		}>('aws');
 		const modelName = this.getNodeParameter('model', itemIndex) as string;
 		const options = this.getNodeParameter('options', itemIndex, {}) as {
 			temperature: number;
 			maxTokensToSample: number;
 		};
 
-		// If the model is specified as a full ARN, extract the region from it
+		// Determine region from ARN if provided, otherwise use env default
 		// ARN format: arn:aws:bedrock:<region>:<account-id>:inference-profile/<profile-id>
-		let region = credentials.region;
+		let region = process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION ?? 'us-east-1';
 		const arnMatch = modelName.match(/^arn:aws:bedrock:([a-z0-9-]+):/);
 		if (arnMatch) {
 			region = arnMatch[1];
 		}
 
-		// We set-up client manually to pass httpAgent and httpsAgent
+		// Client uses IAM role credentials from the environment (ECS task role)
 		const proxyAgent = getNodeProxyAgent();
 		const clientConfig: BedrockRuntimeClientConfig = {
 			region,
-			credentials: {
-				secretAccessKey: credentials.secretAccessKey,
-				accessKeyId: credentials.accessKeyId,
-				...(credentials.sessionToken && { sessionToken: credentials.sessionToken }),
-			},
 		};
 
 		if (proxyAgent) {
@@ -272,7 +119,6 @@ export class LmChatAwsBedrock implements INodeType {
 			});
 		}
 
-		// Pass the pre-configured client to avoid credential resolution proxy issues
 		const client = new BedrockRuntimeClient(clientConfig);
 
 		const model = new ChatBedrockConverse({
