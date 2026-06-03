@@ -136,15 +136,10 @@ function getNodeView(node: INodeTypeDescription | SimplifiedNodeType) {
 	};
 }
 
-const ALLOWED_LLM_NODES = new Set(['@n8n/n8n-nodes-langchain.lmChatAwsBedrock']);
-
 function getAiNodesBySubcategory(nodes: INodeTypeDescription[], subcategory: string) {
 	return nodes
 		.filter(
-			(node) =>
-				!node.hidden &&
-				node.codex?.subcategories?.[AI_SUBCATEGORY]?.includes(subcategory) &&
-				(subcategory !== AI_CATEGORY_LANGUAGE_MODELS || ALLOWED_LLM_NODES.has(node.name)),
+			(node) => !node.hidden && node.codex?.subcategories?.[AI_SUBCATEGORY]?.includes(subcategory),
 		)
 		.map(getNodeView)
 		.sort((a, b) => a.properties.displayName.localeCompare(b.properties.displayName));
