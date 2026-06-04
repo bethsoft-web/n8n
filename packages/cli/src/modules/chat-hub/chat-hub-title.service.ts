@@ -93,7 +93,7 @@ export class ChatHubTitleService {
 					trx,
 				);
 
-			if (!credentialId || !projectId) {
+			if (!projectId || (!credentialId && resolvedModel.provider !== 'awsBedrockBuiltIn')) {
 				throw new BadRequestError('Could not determine credentials for title generation');
 			}
 
