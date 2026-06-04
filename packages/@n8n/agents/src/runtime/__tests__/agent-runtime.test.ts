@@ -136,7 +136,7 @@ function createRuntime(eventBus?: AgentEventBus) {
 	const bus = eventBus ?? new AgentEventBus();
 	const runtime = new AgentRuntime({
 		name: 'test',
-		model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+		model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 		instructions: 'You are a test assistant.',
 		eventBus: bus,
 	});
@@ -150,7 +150,7 @@ function createStructuredRuntime(options?: { tools?: BuiltTool[]; eventBus?: Age
 	const bus = options?.eventBus ?? new AgentEventBus();
 	const runtime = new AgentRuntime({
 		name: 'test-structured',
-		model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+		model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 		instructions: 'You are a test assistant.',
 		structuredOutput: testSchema,
 		eventBus: bus,
@@ -654,7 +654,7 @@ function createRuntimeWithTools(tools: BuiltTool[], concurrency: number, eventBu
 	const bus = eventBus ?? new AgentEventBus();
 	const runtime = new AgentRuntime({
 		name: 'test',
-		model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+		model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 		instructions: 'You are a test assistant.',
 		tools,
 		eventBus: bus,
@@ -706,7 +706,7 @@ describe('AgentRuntime — deferred tool loading', () => {
 		);
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			tools: [coreTool],
 			deferredTools: [deferredTool],
@@ -786,7 +786,7 @@ describe('AgentRuntime — deferred tool loading', () => {
 		);
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			tools: [coreTool],
 			deferredTools: [deferredTool],
@@ -836,7 +836,7 @@ describe('AgentRuntime — deferred tool loading', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			deferredTools: [deferredTool],
 			checkpointStorage: 'memory',
@@ -1834,7 +1834,7 @@ describe('AgentRuntime — runtime input schema validation', () => {
 
 		const runtimeWithTool = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [strictTool],
 		});
@@ -1882,7 +1882,7 @@ describe('AgentRuntime — runtime JSON Schema input validation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [tool],
 		});
@@ -1919,7 +1919,7 @@ describe('AgentRuntime — runtime JSON Schema input validation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [tool],
 		});
@@ -1959,7 +1959,7 @@ describe('AgentRuntime — runtime JSON Schema input validation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [tool],
 		});
@@ -1996,7 +1996,7 @@ describe('AgentRuntime — runtime JSON Schema input validation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [tool],
 		});
@@ -2037,7 +2037,7 @@ describe('AgentRuntime — Tool builder with JSON Schema input', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [tool],
 		});
@@ -2081,7 +2081,7 @@ describe('AgentRuntime — Tool builder with JSON Schema input', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [tool],
 		});
@@ -2125,7 +2125,7 @@ describe('AgentRuntime — Tool builder with JSON Schema input', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [tool],
 		});
@@ -2160,7 +2160,7 @@ describe('AgentRuntime — runtime resume data schema validation', () => {
 
 		const runtimeWithTool = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [tool],
 			checkpointStorage: 'memory',
@@ -2203,7 +2203,7 @@ describe('AgentRuntime — tool approval (HITL wrapper)', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [approvalTool],
 			checkpointStorage: 'memory',
@@ -2236,7 +2236,7 @@ describe('AgentRuntime — tool approval (HITL wrapper)', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [approvalTool],
 			checkpointStorage: 'memory',
@@ -2274,7 +2274,7 @@ describe('AgentRuntime — tool approval (HITL wrapper)', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			tools: [approvalTool],
 			checkpointStorage: 'memory',
@@ -2321,7 +2321,7 @@ describe('external abort signal', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 		});
 
@@ -2350,7 +2350,7 @@ describe('provider options merging', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			thinking: { budgetTokens: 10000 },
 		});
@@ -2404,7 +2404,7 @@ describe('tool systemInstruction merging', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a helpful assistant.',
 			tools: [toolWithDirective],
 		});
@@ -2445,7 +2445,7 @@ describe('tool systemInstruction merging', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'base',
 			tools: [toolA, toolB, toolC],
 		});
@@ -2472,7 +2472,7 @@ describe('tool systemInstruction merging', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a helpful assistant.',
 			tools: [plainTool],
 		});
@@ -2495,7 +2495,7 @@ describe('instruction providerOptions', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			instructionProviderOptions: {
 				anthropic: { cacheControl: { type: 'ephemeral' } },
@@ -2533,7 +2533,7 @@ describe('AgentRuntime — observation log jobs', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'observing-agent',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			memory,
 			observationalMemory: {
@@ -2577,7 +2577,7 @@ describe('AgentRuntime — observation log jobs', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'observing-agent',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			memory,
 			observationalMemory: {
@@ -2614,7 +2614,7 @@ describe('AgentRuntime — observation log jobs', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'plain-agent',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			memory,
 			observationalMemory: {
@@ -2643,7 +2643,7 @@ describe('AgentRuntime — observation log jobs', () => {
 		const memory = new InMemoryMemory();
 		const runtime = new AgentRuntime({
 			name: 'observing-agent',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			memory,
 			observationalMemory: {
@@ -2703,7 +2703,7 @@ describe('AgentRuntime — observation log jobs', () => {
 		bus.on(AgentEvent.Error, (event) => errorEvents.push(event));
 		const runtime = new AgentRuntime({
 			name: 'observing-agent',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			eventBus: bus,
 			memory,
@@ -2735,7 +2735,7 @@ describe('AgentRuntime — observation log jobs', () => {
 		bus.on(AgentEvent.Error, (event) => errorEvents.push(event));
 		const runtime = new AgentRuntime({
 			name: 'observing-agent',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'You are a test assistant.',
 			eventBus: bus,
 			memory,
@@ -2784,7 +2784,7 @@ describe('AgentRuntime — telemetry propagation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'telemetry-test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			eventBus: new AgentEventBus(),
 			telemetry: baseTelemetry,
@@ -2823,7 +2823,7 @@ describe('AgentRuntime — telemetry propagation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'telemetry-root-test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			eventBus: new AgentEventBus(),
 			telemetry,
@@ -2861,7 +2861,7 @@ describe('AgentRuntime — telemetry propagation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'telemetry-root-test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			eventBus: new AgentEventBus(),
 			telemetry,
@@ -2914,7 +2914,7 @@ describe('AgentRuntime — telemetry propagation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'telemetry-root-test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			eventBus: new AgentEventBus(),
 			tools: [tool],
@@ -2946,7 +2946,7 @@ describe('AgentRuntime — telemetry propagation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'telemetry-stream-test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			eventBus: new AgentEventBus(),
 			telemetry: baseTelemetry,
@@ -2969,7 +2969,7 @@ describe('AgentRuntime — telemetry propagation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'child-agent',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			eventBus: new AgentEventBus(),
 			// No telemetry set on the runtime itself
@@ -3011,7 +3011,7 @@ describe('AgentRuntime — telemetry propagation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'tool-telemetry-test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			eventBus: new AgentEventBus(),
 			tools: [spyTool],
@@ -3068,7 +3068,7 @@ describe('AgentRuntime — telemetry propagation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'tool-telemetry-test',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			eventBus: new AgentEventBus(),
 			tools: [spyTool],
@@ -3118,7 +3118,7 @@ describe('AgentRuntime — telemetry propagation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'sub-agent',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			eventBus: new AgentEventBus(),
 			tools: [spyTool],
@@ -3141,7 +3141,7 @@ describe('AgentRuntime — telemetry propagation', () => {
 
 		const runtime = new AgentRuntime({
 			name: 'disabled-telemetry',
-			model: 'aws-bedrock/anthropic.claude-sonnet-4-6-v1',
+			model: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
 			instructions: 'test',
 			eventBus: new AgentEventBus(),
 			telemetry: { ...baseTelemetry, enabled: false },

@@ -55,7 +55,7 @@ export class LmChatAwsBedrockBuiltIn implements INodeType {
 				displayName: 'Model',
 				name: 'model',
 				type: 'string',
-				default: 'anthropic.claude-sonnet-4-6-v1',
+				default: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
 				description: 'The Bedrock model ID or inference profile ARN to use for completion.',
 			},
 			{

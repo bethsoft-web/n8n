@@ -27,7 +27,7 @@ export function createMockAgent(overrides: Partial<ChatModelDto> = {}): ChatMode
 	return {
 		name: 'Test Agent',
 		description: 'A test agent',
-		model: { provider: 'awsBedrock', model: 'anthropic.claude-sonnet-4-6-v1' },
+		model: { provider: 'awsBedrock', model: 'us.anthropic.claude-sonnet-4-20250514-v1:0' },
 		icon: null,
 		updatedAt: '2024-01-15T12:00:00Z',
 		createdAt: '2024-01-15T12:00:00Z',
@@ -54,7 +54,7 @@ export function createMockModelsResponse(
 			models: [
 				createMockAgent({
 					name: 'Claude Sonnet',
-					model: { provider: 'awsBedrock', model: 'anthropic.claude-sonnet-4-6-v1' },
+					model: { provider: 'awsBedrock', model: 'us.anthropic.claude-sonnet-4-20250514-v1:0' },
 				}),
 			],
 		},
@@ -70,7 +70,7 @@ export function createMockSession(overrides: Partial<ChatHubSessionDto> = {}): C
 		lastMessageAt: null,
 		credentialId: null,
 		provider: 'awsBedrock',
-		model: 'anthropic.claude-sonnet-4-6-v1',
+		model: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
 		workflowId: null,
 		agentId: null,
 		agentName: 'gpt-4',
@@ -174,7 +174,7 @@ export function createMockAgentDto(overrides: Partial<ChatHubAgentDto> = {}): Ch
 		ownerId: 'user-1',
 		credentialId: null,
 		provider: 'awsBedrock',
-		model: 'anthropic.claude-sonnet-4-6-v1',
+		model: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
 		files: [],
 		toolIds: [],
 		createdAt: '',

@@ -2,9 +2,9 @@ import { Config, Env } from '../decorators';
 
 @Config
 export class InstanceAiConfig {
-	/** LLM model in provider/model format (e.g. "aws-bedrock/anthropic.claude-sonnet-4-6-v1"). */
+	/** LLM model in provider/model format (e.g. "aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0"). */
 	@Env('N8N_INSTANCE_AI_MODEL')
-	model: string = 'aws-bedrock/anthropic.claude-sonnet-4-6-v1';
+	model: string = 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0';
 
 	/** Base URL for an OpenAI-compatible endpoint (e.g. "http://localhost:1234/v1" for LM Studio). */
 	@Env('N8N_INSTANCE_AI_MODEL_URL')
