@@ -15,7 +15,7 @@ export {
 	chatHubConversationModelSchema,
 	type ChatModelDto,
 	type ChatModelMetadataDto,
-	type ChatHubAwsBedrockModel,
+	type ChatHubAwsBedrockBuiltInModel,
 	type ChatHubBaseLLMModel,
 	type ChatHubN8nModel,
 	type ChatHubCustomAgentModel,

@@ -18,7 +18,6 @@ export const MAX_AGENT_NAME_CHARS = 30;
 export const MAX_FLATTENED_SEARCH_RESULTS_PER_PROVIDER = 10;
 
 export const providerDisplayNames: Record<ChatHubProvider, string> = {
-	awsBedrock: 'AWS Bedrock',
 	awsBedrockBuiltIn: 'AWS Bedrock (Built-in)',
 	n8n: 'Workflow agent',
 	'custom-agent': 'Personal agent',
@@ -39,4 +38,4 @@ export const CHAT_CREDENTIAL_SELECTOR_MODAL_KEY = 'chatCredentialSelectorModal';
 export const CHAT_MODEL_BY_ID_SELECTOR_MODAL_KEY = 'chatModelByIdSelectorModal';
 export const CHAT_PROVIDER_SETTINGS_MODAL_KEY = 'chatProviderSettingsModal';
 
-export const LLM_AGGREGATORS: ChatHubLLMProvider[] = ['awsBedrock', 'awsBedrockBuiltIn'];
+export const LLM_AGGREGATORS: ChatHubLLMProvider[] = ['awsBedrockBuiltIn'];

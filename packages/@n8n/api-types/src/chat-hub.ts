@@ -17,7 +17,7 @@ export { isValidTimeZone, StrictTimeZoneSchema, TimeZoneSchema } from './schemas
 /**
  * Supported AI model providers
  */
-export const chatHubLLMProviderSchema = z.enum(['awsBedrock', 'awsBedrockBuiltIn']);
+export const chatHubLLMProviderSchema = z.enum(['awsBedrockBuiltIn']);
 
 export type ChatHubLLMProvider = z.infer<typeof chatHubLLMProviderSchema>;
 
@@ -71,9 +71,7 @@ export type ChatHubSessionType = z.infer<typeof chatHubSessionTypeSchema>;
  * Map of providers to their credential types.
  * Built-in providers (awsBedrockBuiltIn) don't need credentials — IAM role is used.
  */
-export const PROVIDER_CREDENTIAL_TYPE_MAP: Partial<Record<ChatHubLLMProvider, string>> = {
-	awsBedrock: 'aws',
-};
+export const PROVIDER_CREDENTIAL_TYPE_MAP: Partial<Record<ChatHubLLMProvider, string>> = {};
 
 export const VECTOR_STORE_PROVIDER_CREDENTIAL_TYPE_MAP: Record<ChatHubVectorStoreProvider, string> =
 	{
@@ -85,11 +83,6 @@ export const VECTOR_STORE_PROVIDER_CREDENTIAL_TYPE_MAP: Record<ChatHubVectorStor
 /**
  * Chat Hub conversation model configuration
  */
-const awsBedrockModelSchema = z.object({
-	provider: z.literal('awsBedrock'),
-	model: z.string(),
-});
-
 const awsBedrockBuiltInModelSchema = z.object({
 	provider: z.literal('awsBedrockBuiltIn'),
 	model: z.string(),
@@ -106,15 +99,13 @@ const chatAgentSchema = z.object({
 });
 
 export const chatHubConversationModelSchema = z.discriminatedUnion('provider', [
-	awsBedrockModelSchema,
 	awsBedrockBuiltInModelSchema,
 	n8nModelSchema,
 	chatAgentSchema,
 ]);
 
-export type ChatHubAwsBedrockModel = z.infer<typeof awsBedrockModelSchema>;
 export type ChatHubAwsBedrockBuiltInModel = z.infer<typeof awsBedrockBuiltInModelSchema>;
-export type ChatHubBaseLLMModel = ChatHubAwsBedrockModel | ChatHubAwsBedrockBuiltInModel;
+export type ChatHubBaseLLMModel = ChatHubAwsBedrockBuiltInModel;
 
 export type ChatHubN8nModel = z.infer<typeof n8nModelSchema>;
 export type ChatHubCustomAgentModel = z.infer<typeof chatAgentSchema>;
@@ -166,7 +157,6 @@ export type ChatModelsResponse = Record<
 >;
 
 export const emptyChatModelsResponse: ChatModelsResponse = {
-	awsBedrock: { models: [] },
 	awsBedrockBuiltIn: { models: [] },
 	n8n: { models: [] },
 	// eslint-disable-next-line @typescript-eslint/naming-convention
