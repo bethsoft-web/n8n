@@ -115,12 +115,12 @@ export class ChatHubModelsService {
 				return {
 					models: [
 						{
-							name: 'Claude Sonnet 4 (us.anthropic.claude-sonnet-4-20250514-v1:0)',
+							name: 'Claude Opus 4 (us.anthropic.claude-opus-4-6-v1)',
 							model: {
 								provider: 'awsBedrockBuiltIn' as const,
-								model: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
+								model: 'us.anthropic.claude-opus-4-6-v1',
 							},
-							description: 'Anthropic Claude Sonnet 4 via built-in IAM credentials',
+							description: 'Anthropic Claude Opus 4 via built-in IAM credentials',
 							icon: null,
 							createdAt: null,
 							updatedAt: null,

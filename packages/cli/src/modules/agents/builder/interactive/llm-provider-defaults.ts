@@ -40,6 +40,6 @@ export interface LlmProviderDefault {
 export const LLM_PROVIDER_DEFAULTS: Record<string, LlmProviderDefault> = {
 	awsBedrockApi: {
 		provider: 'aws-bedrock',
-		defaultModel: 'us.anthropic.claude-sonnet-4-20250514-v1:0',
+		defaultModel: 'us.anthropic.claude-opus-4-6-v1',
 	},
 };

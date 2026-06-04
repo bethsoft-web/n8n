@@ -8,8 +8,8 @@ export { Tool };
 // Model constants
 // ---------------------------------------------------------------------------
 
-export const SONNET_MODEL = 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0';
-export const HAIKU_MODEL = 'aws-bedrock/anthropic.claude-haiku-4-5-20251001-v1:0';
+export const SONNET_MODEL = 'aws-bedrock/us.anthropic.claude-opus-4-6-v1';
+export const HAIKU_MODEL = 'aws-bedrock/us.anthropic.claude-opus-4-6-v1';
 
 // ---------------------------------------------------------------------------
 // API key resolution (optional — Bedrock uses IAM credential chain)

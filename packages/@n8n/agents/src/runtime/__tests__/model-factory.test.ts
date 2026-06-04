@@ -42,16 +42,17 @@ describe('createModel', () => {
 	});
 
 	it('should accept a string config', () => {
-		const model = createModel(
-			'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
-		) as unknown as Record<string, unknown>;
+		const model = createModel('aws-bedrock/us.anthropic.claude-opus-4-6-v1') as unknown as Record<
+			string,
+			unknown
+		>;
 		expect(model.provider).toBe('aws-bedrock');
-		expect(model.modelId).toBe('us.anthropic.claude-sonnet-4-20250514-v1:0');
+		expect(model.modelId).toBe('us.anthropic.claude-opus-4-6-v1');
 	});
 
 	it('should accept an object config with credentials', () => {
 		const model = createModel({
-			id: 'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
+			id: 'aws-bedrock/us.anthropic.claude-opus-4-6-v1',
 			region: 'us-west-2',
 			accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
 			secretAccessKey: 'secret',
@@ -76,34 +77,38 @@ describe('createModel', () => {
 	});
 
 	it('should handle model IDs with multiple slashes', () => {
-		const model = createModel(
-			'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0:0',
-		) as unknown as Record<string, unknown>;
+		const model = createModel('aws-bedrock/us.anthropic.claude-opus-4-6-v1:0') as unknown as Record<
+			string,
+			unknown
+		>;
 		expect(model.provider).toBe('aws-bedrock');
-		expect(model.modelId).toBe('us.anthropic.claude-sonnet-4-20250514-v1:0:0');
+		expect(model.modelId).toBe('us.anthropic.claude-opus-4-6-v1:0');
 	});
 
 	it('should not pass fetch when no proxy env vars are set', () => {
-		const model = createModel(
-			'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
-		) as unknown as Record<string, unknown>;
+		const model = createModel('aws-bedrock/us.anthropic.claude-opus-4-6-v1') as unknown as Record<
+			string,
+			unknown
+		>;
 		expect(model.fetch).toBeUndefined();
 	});
 
 	it('should pass proxy-aware fetch when HTTPS_PROXY is set', () => {
 		process.env.HTTPS_PROXY = 'http://proxy:8080';
-		const model = createModel(
-			'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
-		) as unknown as Record<string, unknown>;
+		const model = createModel('aws-bedrock/us.anthropic.claude-opus-4-6-v1') as unknown as Record<
+			string,
+			unknown
+		>;
 		expect(model.fetch).toBeInstanceOf(Function);
 		expect(mockProxyAgent).toHaveBeenCalledWith('http://proxy:8080');
 	});
 
 	it('should pass proxy-aware fetch when HTTP_PROXY is set', () => {
 		process.env.HTTP_PROXY = 'http://proxy:9090';
-		const model = createModel(
-			'aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
-		) as unknown as Record<string, unknown>;
+		const model = createModel('aws-bedrock/us.anthropic.claude-opus-4-6-v1') as unknown as Record<
+			string,
+			unknown
+		>;
 		expect(model.fetch).toBeInstanceOf(Function);
 		expect(mockProxyAgent).toHaveBeenCalledWith('http://proxy:9090');
 	});
@@ -111,7 +116,7 @@ describe('createModel', () => {
 	it('should prefer HTTPS_PROXY over HTTP_PROXY', () => {
 		process.env.HTTPS_PROXY = 'http://https-proxy:8080';
 		process.env.HTTP_PROXY = 'http://http-proxy:9090';
-		createModel('aws-bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0');
+		createModel('aws-bedrock/us.anthropic.claude-opus-4-6-v1');
 		expect(mockProxyAgent).toHaveBeenCalledWith('http://https-proxy:8080');
 	});
 
