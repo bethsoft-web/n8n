@@ -55,7 +55,11 @@ export class ChatHubModelsService {
 				async (provider: ChatHubProvider) => {
 					const credentials: INodeCredentials = {};
 
-					if (provider !== 'n8n' && provider !== 'custom-agent') {
+					if (
+						provider !== 'n8n' &&
+						provider !== 'custom-agent' &&
+						provider !== 'awsBedrockBuiltIn'
+					) {
 						const credentialId = credentialIds[provider];
 						if (!credentialId) {
 							return [provider, { models: [] }];
@@ -106,6 +110,32 @@ export class ChatHubModelsService {
 			case 'awsBedrock': {
 				const rawModels = await this.fetchAwsBedrockModels(credentials, additionalData);
 				return { models: this.transformAndFilterModels(rawModels, 'awsBedrock') };
+			}
+			case 'awsBedrockBuiltIn': {
+				return {
+					models: [
+						{
+							name: 'Claude Sonnet 4 (anthropic.claude-sonnet-4-6-v1)',
+							model: {
+								provider: 'awsBedrockBuiltIn' as const,
+								model: 'anthropic.claude-sonnet-4-6-v1',
+							},
+							description: 'Anthropic Claude Sonnet 4 via built-in IAM credentials',
+							icon: null,
+							createdAt: null,
+							updatedAt: null,
+							groupName: null,
+							groupIcon: null,
+							metadata: {
+								allowFileUploads: false,
+								allowedFilesMimeTypes: '',
+								available: true,
+								capabilities: { functionCalling: true },
+								inputModalities: [],
+							},
+						},
+					],
+				};
 			}
 			case 'n8n':
 				return { models: await this.fetchAgentWorkflowsAsModels(user) };

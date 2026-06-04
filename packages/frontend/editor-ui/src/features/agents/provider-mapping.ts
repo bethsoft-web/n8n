@@ -6,6 +6,7 @@ import type { ChatHubLLMProvider } from '@n8n/api-types';
  */
 export const CHATHUB_TO_CATALOG: Record<string, string> = {
 	awsBedrock: 'aws-bedrock',
+	awsBedrockBuiltIn: 'aws-bedrock',
 };
 
 /**

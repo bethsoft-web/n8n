@@ -833,6 +833,16 @@ ${this.getSystemMessageMetadata(timeZone) + artifactContext}`;
 					},
 				};
 			}
+			case 'awsBedrockBuiltIn': {
+				return {
+					...common,
+					credentials: {},
+					parameters: {
+						model,
+						options: {},
+					},
+				};
+			}
 			case 'vercelAiGateway': {
 				return {
 					...common,

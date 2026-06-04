@@ -121,7 +121,7 @@ const chatStore = useChatStore();
 const toast = useToast();
 
 const credentialType = computed(() => {
-	return PROVIDER_CREDENTIAL_TYPE_MAP[props.data.provider];
+	return PROVIDER_CREDENTIAL_TYPE_MAP[props.data.provider] ?? '';
 });
 
 function onCredentialSelect(credentialId: string) {

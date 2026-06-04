@@ -66,6 +66,10 @@ export const PROVIDER_NODE_TYPE_MAP: Record<ChatHubLLMProvider, INodeTypeNameVer
 		name: '@n8n/n8n-nodes-langchain.lmChatAwsBedrock',
 		version: 1.1,
 	},
+	awsBedrockBuiltIn: {
+		name: '@n8n/n8n-nodes-langchain.lmChatAwsBedrockBuiltIn',
+		version: 1,
+	},
 	vercelAiGateway: {
 		name: '@n8n/n8n-nodes-langchain.lmChatVercelAiGateway',
 		version: 1,

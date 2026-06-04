@@ -86,7 +86,11 @@ const credentialsName = computed(() =>
 		: undefined,
 );
 
-const isCredentialsRequired = computed(() => isLlmProviderModel(selectedAgent?.model));
+const isCredentialsRequired = computed(
+	() =>
+		isLlmProviderModel(selectedAgent?.model) &&
+		!!PROVIDER_CREDENTIAL_TYPE_MAP[selectedAgent?.model.provider as ChatHubLLMProvider],
+);
 const isCredentialsMissing = computed(
 	() =>
 		warnMissingCredentials &&
@@ -117,6 +121,7 @@ const canCreateCredentials = computed(() => {
 
 function openCredentialsSelectorOrCreate(provider: ChatHubLLMProvider) {
 	const credentialType = PROVIDER_CREDENTIAL_TYPE_MAP[provider];
+	if (!credentialType) return;
 	const existingCredentials = credentialsStore.getCredentialsByType(credentialType);
 
 	if (existingCredentials.length === 0 && canCreateCredentials.value) {

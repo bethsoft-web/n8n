@@ -315,7 +315,7 @@ watch(
 							app-name=""
 							:credential-type="
 								settings.embeddingModel.provider
-									? PROVIDER_CREDENTIAL_TYPE_MAP[settings.embeddingModel.provider]
+									? (PROVIDER_CREDENTIAL_TYPE_MAP[settings.embeddingModel.provider] ?? '')
 									: ''
 							"
 							:selected-credential-id="settings.embeddingModel.credentialId"

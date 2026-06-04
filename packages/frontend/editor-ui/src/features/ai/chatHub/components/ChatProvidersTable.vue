@@ -164,7 +164,7 @@ const onTableAction = (action: string, settings: ChatProviderSettingsDto) => {
 					<div :class="$style.providerCell">
 						<CredentialIcon
 							v-if="item.provider in PROVIDER_CREDENTIAL_TYPE_MAP"
-							:credential-type-name="PROVIDER_CREDENTIAL_TYPE_MAP[item.provider]"
+							:credential-type-name="PROVIDER_CREDENTIAL_TYPE_MAP[item.provider] ?? null"
 							:size="16"
 							:class="$style.menuIcon"
 						/>

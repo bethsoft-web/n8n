@@ -17,7 +17,7 @@ export { isValidTimeZone, StrictTimeZoneSchema, TimeZoneSchema } from './schemas
 /**
  * Supported AI model providers
  */
-export const chatHubLLMProviderSchema = z.enum(['awsBedrock']);
+export const chatHubLLMProviderSchema = z.enum(['awsBedrock', 'awsBedrockBuiltIn']);
 
 export type ChatHubLLMProvider = z.infer<typeof chatHubLLMProviderSchema>;
 
@@ -67,7 +67,11 @@ export type ChatHubSessionType = z.infer<typeof chatHubSessionTypeSchema>;
  * Map of providers to their credential types
  * Only LLM providers (openai, anthropic, google) have credentials
  */
-export const PROVIDER_CREDENTIAL_TYPE_MAP: Record<ChatHubLLMProvider, string> = {
+/**
+ * Map of providers to their credential types.
+ * Built-in providers (awsBedrockBuiltIn) don't need credentials — IAM role is used.
+ */
+export const PROVIDER_CREDENTIAL_TYPE_MAP: Partial<Record<ChatHubLLMProvider, string>> = {
 	awsBedrock: 'aws',
 };
 
@@ -86,6 +90,11 @@ const awsBedrockModelSchema = z.object({
 	model: z.string(),
 });
 
+const awsBedrockBuiltInModelSchema = z.object({
+	provider: z.literal('awsBedrockBuiltIn'),
+	model: z.string(),
+});
+
 const n8nModelSchema = z.object({
 	provider: z.literal('n8n'),
 	workflowId: z.string(),
@@ -98,12 +107,14 @@ const chatAgentSchema = z.object({
 
 export const chatHubConversationModelSchema = z.discriminatedUnion('provider', [
 	awsBedrockModelSchema,
+	awsBedrockBuiltInModelSchema,
 	n8nModelSchema,
 	chatAgentSchema,
 ]);
 
 export type ChatHubAwsBedrockModel = z.infer<typeof awsBedrockModelSchema>;
-export type ChatHubBaseLLMModel = ChatHubAwsBedrockModel;
+export type ChatHubAwsBedrockBuiltInModel = z.infer<typeof awsBedrockBuiltInModelSchema>;
+export type ChatHubBaseLLMModel = ChatHubAwsBedrockModel | ChatHubAwsBedrockBuiltInModel;
 
 export type ChatHubN8nModel = z.infer<typeof n8nModelSchema>;
 export type ChatHubCustomAgentModel = z.infer<typeof chatAgentSchema>;
@@ -156,6 +167,7 @@ export type ChatModelsResponse = Record<
 
 export const emptyChatModelsResponse: ChatModelsResponse = {
 	awsBedrock: { models: [] },
+	awsBedrockBuiltIn: { models: [] },
 	n8n: { models: [] },
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	'custom-agent': { models: [] },

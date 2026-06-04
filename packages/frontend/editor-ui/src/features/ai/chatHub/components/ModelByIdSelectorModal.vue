@@ -58,7 +58,7 @@ function onCancel() {
 		<template #header>
 			<div :class="$style.header">
 				<CredentialIcon
-					:credential-type-name="PROVIDER_CREDENTIAL_TYPE_MAP[data.provider]"
+					:credential-type-name="PROVIDER_CREDENTIAL_TYPE_MAP[data.provider] ?? null"
 					:size="24"
 					:class="$style.icon"
 				/>

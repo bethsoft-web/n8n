@@ -80,7 +80,9 @@ export class ChatHubService {
 			return null;
 		}
 
-		return credentials[PROVIDER_CREDENTIAL_TYPE_MAP[provider]]?.id ?? null;
+		const credType = PROVIDER_CREDENTIAL_TYPE_MAP[provider];
+		if (!credType) return null;
+		return credentials[credType]?.id ?? null;
 	}
 
 	private async ensurePreviousMessage(

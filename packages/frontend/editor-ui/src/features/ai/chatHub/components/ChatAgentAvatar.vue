@@ -48,7 +48,7 @@ const i18n = useI18n();
 			<CredentialIcon
 				v-else
 				:class="[$style.credentialsIcon, { [$style.isReady]: isCredentialsIconReady }]"
-				:credential-type-name="PROVIDER_CREDENTIAL_TYPE_MAP[agent.model.provider]"
+				:credential-type-name="PROVIDER_CREDENTIAL_TYPE_MAP[agent.model.provider] ?? null"
 				:size="size === 'xl' ? 40 : size === 'sm' ? 16 : size === 'lg' ? 40 : 20"
 			/>
 		</div>

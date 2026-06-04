@@ -59,6 +59,7 @@ function onEditProvider(settings: ChatProviderSettingsDto) {
 			disabled: disabled.value,
 			onNewCredential: (provider: ChatHubLLMProvider) => {
 				const credentialType = PROVIDER_CREDENTIAL_TYPE_MAP[provider];
+				if (!credentialType) return;
 
 				telemetry.track('User opened Credential modal', {
 					credential_type: credentialType,
