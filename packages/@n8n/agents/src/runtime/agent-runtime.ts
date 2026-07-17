@@ -1592,8 +1592,7 @@ export class AgentRuntime {
 		const thinking = this.config.thinking;
 
 		switch (provider) {
-			case 'anthropic':
-			case 'aws-bedrock': {
+			case 'anthropic': {
 				const cfg = thinking as AnthropicThinkingConfig;
 				if (cfg.mode === 'adaptive') {
 					return { anthropic: { thinking: { type: 'adaptive' } } };

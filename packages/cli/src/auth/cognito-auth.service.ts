@@ -7,6 +7,8 @@ import type { NextFunction, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { z } from 'zod';
 
+import { AuthService } from '@/auth/auth.service';
+import { AUTH_COOKIE_NAME } from '@/constants';
 import { AuthError } from '@/errors/response-errors/auth.error';
 
 // ---------------------------------------------------------------------------
@@ -80,6 +82,7 @@ export class CognitoAuthService {
 		private readonly globalConfig: GlobalConfig,
 		private readonly logger: Logger,
 		private readonly userRepository: UserRepository,
+		private readonly authService: AuthService,
 	) {
 		const { region, userPoolId } = this.globalConfig.cognito;
 		this.elbKeyCache = new KeyCache({
@@ -94,42 +97,16 @@ export class CognitoAuthService {
 	 */
 	createAuthMiddleware() {
 		return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-			try {
-				const identity = await this.validateIdentityToken(req);
-				if (!identity) {
-					res.status(401).json({ status: 'error', message: 'Missing or invalid authentication' });
-					return;
-				}
-
-				const access = await this.validateAccessToken(req);
-				const groups = access?.groups ?? [];
-
-				const user = await this.findOrCreateUser(identity, groups);
-				req.user = user;
-				req.authInfo = { usedMfa: false };
-				next();
-			} catch (error) {
-				if (error instanceof AuthError) {
-					res.status(401).json({ status: 'error', message: 'Unauthorized' });
-					return;
-				}
-				throw error;
+			// Fast path: if a valid n8n-auth cookie already exists, let the standard
+			// AuthService middleware validate it downstream.
+			if (req.cookies?.[AUTH_COOKIE_NAME]) {
+				return next();
 			}
-		};
-	}
 
-	/**
-	 * Creates a "soft" auth middleware that attempts Cognito ALB authentication
-	 * but allows the request through even if no ALB headers are present.
-	 * Used for endpoints like /settings that need to work for both
-	 * authenticated and unauthenticated states.
-	 */
-	createOptionalAuthMiddleware() {
-		return async (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
 			try {
 				const identity = await this.validateIdentityToken(req);
 				if (!identity) {
-					// No ALB headers or invalid token — allow through without user
+					// No ALB headers — let the request continue; downstream auth will 401 if required.
 					return next();
 				}
 
@@ -137,12 +114,14 @@ export class CognitoAuthService {
 				const groups = access?.groups ?? [];
 
 				const user = await this.findOrCreateUser(identity, groups);
-				req.user = user;
-				req.authInfo = { usedMfa: false };
-			} catch {
-				// Auth failed — allow through without user
+				this.authService.issueCookie(res, user, false, req.browserId);
+				next();
+			} catch (error) {
+				if (error instanceof AuthError) {
+					return next();
+				}
+				throw error;
 			}
-			next();
 		};
 	}
 

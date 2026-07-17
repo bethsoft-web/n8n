@@ -38,8 +38,58 @@ export interface LlmProviderDefault {
 }
 
 export const LLM_PROVIDER_DEFAULTS: Record<string, LlmProviderDefault> = {
-	awsBedrockApi: {
-		provider: 'aws-bedrock',
-		defaultModel: 'us.anthropic.claude-opus-4-6-v1',
+	anthropicApi: {
+		provider: 'anthropic',
+		defaultModel: 'claude-sonnet-4-6',
+		modelLookup: {
+			kind: 'listSearch',
+			nodeType: '@n8n/n8n-nodes-langchain.lmChatAnthropic',
+			version: 1.5,
+			methodName: 'searchModels',
+		},
+	},
+	openAiApi: {
+		provider: 'openai',
+		defaultModel: 'gpt-5',
+		modelLookup: {
+			kind: 'listSearch',
+			nodeType: '@n8n/n8n-nodes-langchain.lmChatOpenAi',
+			version: 1.2,
+			methodName: 'searchModels',
+		},
+	},
+	googlePalmApi: {
+		provider: 'google',
+		defaultModel: 'gemini-2.5-pro',
+		modelLookup: {
+			kind: 'loadOptionsRouting',
+			nodeType: '@n8n/n8n-nodes-langchain.lmChatGoogleGemini',
+			version: 1.1,
+			propertyName: 'modelName',
+		},
+	},
+	xAiApi: { provider: 'xai', defaultModel: 'grok-4' },
+	groqApi: { provider: 'groq', defaultModel: 'llama-3.1-70b-versatile' },
+	mistralCloudApi: {
+		provider: 'mistral',
+		defaultModel: 'mistral-large-latest',
+		modelLookup: {
+			kind: 'loadOptionsRouting',
+			nodeType: '@n8n/n8n-nodes-langchain.lmChatMistralCloud',
+			version: 1,
+			propertyName: 'model',
+		},
+	},
+	deepSeekApi: { provider: 'deepseek', defaultModel: 'deepseek-chat' },
+	cohereApi: { provider: 'cohere', defaultModel: 'command-r-plus' },
+	openRouterApi: {
+		provider: 'openrouter',
+		defaultModel: 'anthropic/claude-sonnet-4.6',
+		modelLookup: {
+			kind: 'loadOptionsRouting',
+			nodeType: '@n8n/n8n-nodes-langchain.lmChatOpenRouter',
+			version: 1,
+			propertyName: 'model',
+		},
 	},
 };

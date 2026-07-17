@@ -43,9 +43,7 @@ export class ChatHubCredentialsService {
 			return null;
 		}
 
-		const credType = PROVIDER_CREDENTIAL_TYPE_MAP[provider];
-		if (!credType) return null;
-		return credentials[credType]?.id ?? null;
+		return credentials[PROVIDER_CREDENTIAL_TYPE_MAP[provider]]?.id ?? null;
 	}
 
 	async findPersonalProject(user: User, trx?: EntityManager) {
@@ -62,9 +60,6 @@ export class ChatHubCredentialsService {
 	 * at execution time within the context and project of the workflow.
 	 */
 	findProviderCredential(provider: ChatHubLLMProvider, credentials: INodeCredentials) {
-		// Built-in Bedrock uses IAM role credentials — no user credential needed
-		if (provider === 'awsBedrockBuiltIn') return null;
-
 		const credentialId = this.pickCredentialId(provider, credentials);
 		if (!credentialId) {
 			throw new BadRequestError('No credentials provided for the selected model provider');

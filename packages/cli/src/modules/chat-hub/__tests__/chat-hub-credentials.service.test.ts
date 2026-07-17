@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type {
 	CredentialsEntity,
 	Project,
@@ -121,7 +120,7 @@ describe('ChatHubCredentialsService', () => {
 			credentialsService.findAllGlobalCredentialIds.mockResolvedValue([]);
 
 			const result = await service.findWorkflowCredentialAndProject(
-				'awsBedrock',
+				'openai',
 				mockCredentials,
 				'workflow-123',
 			);
@@ -140,7 +139,7 @@ describe('ChatHubCredentialsService', () => {
 			};
 
 			const promise = service.findWorkflowCredentialAndProject(
-				'awsBedrock',
+				'anthropic',
 				mockCredentials,
 				'workflow-123',
 			);
@@ -166,7 +165,7 @@ describe('ChatHubCredentialsService', () => {
 			credentialsService.findAllGlobalCredentialIds.mockResolvedValue([]);
 
 			const promise = service.findWorkflowCredentialAndProject(
-				'awsBedrock',
+				'openai',
 				mockCredentials,
 				'workflow-123',
 			);

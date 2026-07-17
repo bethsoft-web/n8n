@@ -18,7 +18,22 @@ export const MAX_AGENT_NAME_CHARS = 30;
 export const MAX_FLATTENED_SEARCH_RESULTS_PER_PROVIDER = 10;
 
 export const providerDisplayNames: Record<ChatHubProvider, string> = {
+	openai: 'OpenAI',
+	anthropic: 'Anthropic',
+	google: 'Google',
+	azureOpenAi: 'Azure (API Key)',
+	azureEntraId: 'Azure (Entra ID)',
+	ollama: 'Ollama',
+	awsBedrock: 'AWS Bedrock',
 	awsBedrockBuiltIn: 'AWS Bedrock (Built-in)',
+	vercelAiGateway: 'Vercel AI Gateway',
+	xAiGrok: 'xAI Grok',
+	groq: 'Groq',
+	openRouter: 'OpenRouter',
+	deepSeek: 'DeepSeek',
+	cohere: 'Cohere',
+	mistralCloud: 'Mistral Cloud',
+	nvidia: 'NVIDIA Nemotron',
 	n8n: 'Workflow agent',
 	'custom-agent': 'Personal agent',
 };
@@ -38,4 +53,8 @@ export const CHAT_CREDENTIAL_SELECTOR_MODAL_KEY = 'chatCredentialSelectorModal';
 export const CHAT_MODEL_BY_ID_SELECTOR_MODAL_KEY = 'chatModelByIdSelectorModal';
 export const CHAT_PROVIDER_SETTINGS_MODAL_KEY = 'chatProviderSettingsModal';
 
-export const LLM_AGGREGATORS: ChatHubLLMProvider[] = ['awsBedrockBuiltIn'];
+export const LLM_AGGREGATORS: ChatHubLLMProvider[] = [
+	'awsBedrock',
+	'vercelAiGateway',
+	'openRouter',
+];

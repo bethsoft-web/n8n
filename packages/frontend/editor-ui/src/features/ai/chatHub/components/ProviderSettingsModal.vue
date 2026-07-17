@@ -121,7 +121,7 @@ const chatStore = useChatStore();
 const toast = useToast();
 
 const credentialType = computed(() => {
-	return PROVIDER_CREDENTIAL_TYPE_MAP[props.data.provider] ?? '';
+	return PROVIDER_CREDENTIAL_TYPE_MAP[props.data.provider];
 });
 
 function onCredentialSelect(credentialId: string) {
@@ -345,6 +345,25 @@ watch(
 							:tags-by-id="modelsById"
 							:create-tag="addManualModel"
 							:create-tag-i18n-key="'settings.chatHub.providers.modal.edit.models.create'"
+						/>
+					</label>
+
+					<label v-if="data.provider === 'openai'" :class="$style.container">
+						<N8nText color="text-dark">
+							{{ i18n.baseText('settings.chatHub.providers.modal.edit.responsesApi.label') }}
+						</N8nText>
+						<N8nText color="text-light" size="small">
+							{{ i18n.baseText('settings.chatHub.providers.modal.edit.responsesApi.description') }}
+						</N8nText>
+						<N8nSwitch
+							size="large"
+							:model-value="settings.responsesApiEnabled ?? true"
+							:disabled="props.data.disabled"
+							@update:model-value="
+								(v: boolean) => {
+									settings!.responsesApiEnabled = v;
+								}
+							"
 						/>
 					</label>
 

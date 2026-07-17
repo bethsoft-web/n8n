@@ -12,7 +12,26 @@ export const providerCapabilities: Record<
 		thinking?: ProviderCapability;
 	}
 > = {
-	'aws-bedrock': {
+	anthropic: {
 		thinking: { field: 'budgetTokens', type: 'number', label: 'Budget Tokens', default: 10000 },
 	},
+	openai: {
+		thinking: {
+			field: 'reasoningEffort',
+			type: 'select',
+			label: 'Reasoning Effort',
+			default: 'medium',
+			options: ['low', 'medium', 'high'],
+		},
+	},
+	google: {},
+	xai: {},
+	groq: {},
+	deepseek: {},
+	mistral: {},
+	cohere: {},
+	vercel: {},
+	openrouter: {},
+	'azure-openai': {},
+	'aws-bedrock': {},
 };

@@ -2,10 +2,6 @@ import { Config, Env } from '../decorators';
 
 @Config
 export class CognitoConfig {
-	/** Whether Cognito ALB header-based authentication is enabled. */
-	@Env('N8N_COGNITO_ENABLED')
-	enabled: boolean = false;
-
 	/** AWS Region for key endpoints (e.g., 'us-east-1'). */
 	@Env('AWS_REGION')
 	region: string = 'us-east-1';

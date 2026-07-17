@@ -156,8 +156,6 @@ export class FrontendService {
 
 	private async getShowSetupOnFirstLoad() {
 		const previewMode = process.env.N8N_PREVIEW_MODE === 'true';
-		// When Cognito is enabled, skip setup — the first user is JIT-provisioned via ALB headers
-		if (this.globalConfig.cognito.enabled) return false;
 		const hasInstanceOwner = await this.ownershipService.hasInstanceOwner();
 		// In preview mode, skip the setup redirect to allow accessing demo routes
 		return previewMode ? false : !hasInstanceOwner;

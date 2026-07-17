@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { Logger } from '@n8n/backend-common';
 import type { User } from '@n8n/db';
 import { mock } from 'jest-mock-extended';
@@ -43,7 +42,7 @@ function makeMullerFile(overrides: Partial<Express.Multer.File> = {}): Express.M
 }
 
 const MOCK_SEMANTIC_SEARCH_OPTIONS: SemanticSearchOptions = {
-	embeddingModel: { provider: 'awsBedrock', credentialId: 'embedding-cred' },
+	embeddingModel: { provider: 'openai', credentialId: 'embedding-cred' },
 	vectorStore: { nodeType: 'vectorStore', credentialType: 'pineconeApi', credentialId: 'vs-cred' },
 };
 
@@ -59,7 +58,7 @@ function makeAgent(overrides: Partial<ChatHubAgent> = {}): ChatHubAgent {
 		systemPrompt: 'You are a helpful assistant',
 		ownerId: mockUserId,
 		credentialId: 'cred-1',
-		provider: 'awsBedrock',
+		provider: 'openai',
 		model: 'gpt-4',
 		createdAt: new Date('2025-01-01'),
 		updatedAt: new Date('2025-01-01'),
@@ -113,7 +112,7 @@ describe('ChatHubAgentService', () => {
 				systemPrompt: 'You are helpful',
 				icon: { type: 'emoji', value: '🤖' },
 				credentialId: 'cred-1',
-				provider: 'awsBedrock',
+				provider: 'openai',
 				model: 'gpt-4',
 				toolIds: [],
 			});
@@ -126,14 +125,14 @@ describe('ChatHubAgentService', () => {
 					systemPrompt: 'You are helpful',
 					icon: { type: 'emoji', value: '🤖' },
 					credentialId: 'cred-1',
-					provider: 'awsBedrock',
+					provider: 'openai',
 					model: 'gpt-4',
 					ownerId: mockUserId,
 				}),
 			);
 			expect(dto.id).toBe(agent.id);
 			expect(dto.name).toBe('Test Agent');
-			expect(dto.provider).toBe('awsBedrock');
+			expect(dto.provider).toBe('openai');
 			expect(dto.model).toBe('gpt-4');
 			expect(dto.toolIds).toEqual([]);
 		});
@@ -147,7 +146,7 @@ describe('ChatHubAgentService', () => {
 				systemPrompt: 'You are helpful',
 				icon: { type: 'emoji', value: '🤖' },
 				credentialId: 'cred-1',
-				provider: 'awsBedrock',
+				provider: 'openai',
 				model: 'gpt-4',
 				toolIds: [],
 			});
@@ -167,7 +166,7 @@ describe('ChatHubAgentService', () => {
 				systemPrompt: 'You are helpful',
 				icon: { type: 'emoji', value: '🤖' },
 				credentialId: 'cred-1',
-				provider: 'awsBedrock',
+				provider: 'openai',
 				model: 'gpt-4',
 				toolIds,
 			});
@@ -185,7 +184,7 @@ describe('ChatHubAgentService', () => {
 				systemPrompt: 'You are helpful',
 				icon: { type: 'emoji', value: '🤖' },
 				credentialId: 'cred-1',
-				provider: 'awsBedrock',
+				provider: 'openai',
 				model: 'gpt-4',
 				toolIds: [],
 			});
@@ -204,7 +203,7 @@ describe('ChatHubAgentService', () => {
 				icon: { type: 'emoji', value: '🤖' },
 				suggestedPrompts: prompts,
 				credentialId: 'cred-1',
-				provider: 'awsBedrock',
+				provider: 'openai',
 				model: 'gpt-4',
 				toolIds: [],
 			});
@@ -224,7 +223,7 @@ describe('ChatHubAgentService', () => {
 				systemPrompt: 'You are helpful',
 				icon: { type: 'emoji', value: '🤖' },
 				credentialId: 'cred-1',
-				provider: 'awsBedrock',
+				provider: 'openai',
 				model: 'gpt-4',
 				toolIds: [],
 			});
@@ -475,7 +474,7 @@ describe('ChatHubAgentService', () => {
 			const existingFile: ChatHubAgentKnowledgeItem = {
 				id: uuid(),
 				type: 'embedding',
-				provider: 'awsBedrock',
+				provider: 'openai',
 				fileName: 'existing.pdf',
 				mimeType: 'application/pdf',
 				status: 'indexed',
@@ -567,7 +566,7 @@ describe('ChatHubAgentService', () => {
 			const file: ChatHubAgentKnowledgeItem = {
 				id: fileId,
 				type: 'embedding',
-				provider: 'awsBedrock',
+				provider: 'openai',
 				fileName: 'report.pdf',
 				mimeType: 'application/pdf',
 				status: 'indexed',
@@ -595,7 +594,7 @@ describe('ChatHubAgentService', () => {
 			const file: ChatHubAgentKnowledgeItem = {
 				id: fileId,
 				type: 'embedding',
-				provider: 'awsBedrock',
+				provider: 'openai',
 				fileName: 'report.pdf',
 				mimeType: 'application/pdf',
 				status: 'indexed',
@@ -627,7 +626,7 @@ describe('ChatHubAgentService', () => {
 			expect(dto.name).toBe('Test Agent');
 			expect(dto.description).toBe('A test agent');
 			expect(dto.systemPrompt).toBe('You are a helpful assistant');
-			expect(dto.provider).toBe('awsBedrock');
+			expect(dto.provider).toBe('openai');
 			expect(dto.model).toBe('gpt-4');
 			expect(dto.toolIds).toEqual(toolIds);
 			expect(dto.createdAt).toBe('2025-01-01T00:00:00.000Z');

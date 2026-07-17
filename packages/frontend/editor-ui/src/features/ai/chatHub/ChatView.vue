@@ -276,21 +276,14 @@ const credentialsForSelectedProvider = computed<ChatHubSendMessageRequest['crede
 			return {};
 		}
 
-		// Built-in providers don't need credentials
-		if (!PROVIDER_CREDENTIAL_TYPE_MAP[provider]) {
-			return {};
-		}
-
 		const credentialsId = credentialsByProvider.value?.[provider];
 
 		if (!credentialsId) {
 			return null;
 		}
 
-		const credType = PROVIDER_CREDENTIAL_TYPE_MAP[provider];
-		if (!credType) return {};
 		return {
-			[credType]: {
+			[PROVIDER_CREDENTIAL_TYPE_MAP[provider]]: {
 				id: credentialsId,
 				name: '',
 			},

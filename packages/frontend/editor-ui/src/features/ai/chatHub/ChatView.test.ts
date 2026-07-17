@@ -249,19 +249,23 @@ describe('ChatView', () => {
 						}),
 					],
 				},
-				awsBedrock: {
+				openai: {
 					models: [
 						createMockAgent({
 							name: 'GPT-4',
-							model: { provider: 'awsBedrock', model: 'gpt-4' },
+							model: { provider: 'openai', model: 'gpt-4' },
 						}),
 						createMockAgent({
 							name: 'GPT-3.5',
-							model: { provider: 'awsBedrock', model: 'gpt-3.5-turbo' },
+							model: { provider: 'openai', model: 'gpt-3.5-turbo' },
 						}),
+					],
+				},
+				anthropic: {
+					models: [
 						createMockAgent({
 							name: 'Claude 3',
-							model: { provider: 'awsBedrock', model: 'claude-3' },
+							model: { provider: 'anthropic', model: 'claude-3' },
 						}),
 					],
 				},
@@ -318,7 +322,7 @@ describe('ChatView', () => {
 		it('preselects agent from localStorage', async () => {
 			localStorage.setItem(
 				'user-123_N8N_CHAT_HUB_SELECTED_MODEL',
-				JSON.stringify({ provider: 'awsBedrock', model: 'gpt-4' }),
+				JSON.stringify({ provider: 'openai', model: 'gpt-4' }),
 			);
 
 			const rendered = renderComponent({ pinia });
@@ -329,15 +333,19 @@ describe('ChatView', () => {
 		it('preselects first available agent when no preference exists', async () => {
 			vi.mocked(chatApi.fetchChatModelsApi).mockResolvedValueOnce(
 				createMockModelsResponse({
-					awsBedrock: {
+					openai: {
 						models: [
 							createMockAgent({
 								name: 'GPT-4',
-								model: { provider: 'awsBedrock', model: 'gpt-4' },
+								model: { provider: 'openai', model: 'gpt-4' },
 							}),
+						],
+					},
+					anthropic: {
+						models: [
 							createMockAgent({
 								name: 'Claude 3',
-								model: { provider: 'awsBedrock', model: 'claude-3' },
+								model: { provider: 'anthropic', model: 'claude-3' },
 							}),
 						],
 					},
@@ -583,7 +591,7 @@ describe('ChatView', () => {
 								type: 'ai',
 								name: 'Assistant',
 								content: [{ type: 'text', content: 'Previous answer' }],
-								provider: 'awsBedrock',
+								provider: 'openai',
 								model: 'gpt-4',
 								previousMessageId: 'msg-1',
 							}),
@@ -758,11 +766,11 @@ describe('ChatView', () => {
 
 			vi.mocked(chatApi.fetchChatModelsApi).mockResolvedValueOnce(
 				createMockModelsResponse({
-					awsBedrock: {
+					openai: {
 						models: [
 							createMockAgent({
 								name: 'GPT-4',
-								model: { provider: 'awsBedrock', model: 'gpt-4' },
+								model: { provider: 'openai', model: 'gpt-4' },
 								suggestedPrompts: [{ text: 'Should not appear' }], // Perhaps we'll implement this one day
 							}),
 						],

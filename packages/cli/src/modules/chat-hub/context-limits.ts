@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { ChatHubLLMProvider } from '@n8n/api-types';
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -216,6 +215,7 @@ export const maxContextWindowTokens: Record<ChatHubLLMProvider, Record<string, n
 		'mistral-small-latest': 128000,
 	},
 	nvidia: {},
+	awsBedrockBuiltIn: {},
 };
 
 const CONTEXT_WINDOW_SAFETY_FACTOR = 0.95;

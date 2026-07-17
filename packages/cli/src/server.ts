@@ -162,13 +162,6 @@ export class Server extends AbstractServer {
 			await Container.get(PrometheusMetricsService).init(this.app);
 		}
 
-		// When Cognito is enabled, auto-set the authentication method on startup
-		if (this.globalConfig.cognito.enabled) {
-			const { setCurrentAuthenticationMethod } = await import('@/sso.ee/sso-helpers');
-			await setCurrentAuthenticationMethod('cognito');
-			this.logger.info('Cognito ALB authentication is enabled — set as sole auth method');
-		}
-
 		const { frontendService } = this;
 		if (frontendService) {
 			await this.externalHooks.run('frontend.settings', [await frontendService.getSettings()]);
@@ -183,17 +176,14 @@ export class Server extends AbstractServer {
 		// API key auth is registered first so existing behavior is preserved.
 		// Additional strategies (e.g. scoped JWT from the token-exchange module)
 		// can be appended later during their own module initialization.
-		// When Cognito is enabled, we skip API key registration since there's no public API.
-		if (!this.globalConfig.cognito.enabled) {
-			const registry = Container.get(AuthStrategyRegistry);
-			registry.register(Container.get(ApiKeyAuthStrategy));
-		}
+		const registry = Container.get(AuthStrategyRegistry);
+		registry.register(Container.get(ApiKeyAuthStrategy));
 
 		// ----------------------------------------
 		// Public API
 		// ----------------------------------------
 
-		if (isApiEnabled() && !this.globalConfig.cognito.enabled) {
+		if (isApiEnabled()) {
 			const { apiRouters, apiLatestVersion } = await loadPublicApiVersions(publicApiEndpoint);
 			this.app.use(...apiRouters);
 			if (frontendService) {
@@ -209,6 +199,11 @@ export class Server extends AbstractServer {
 
 		// Parse cookies for easier access
 		this.app.use(cookieParser());
+
+		// Cognito ALB pre-auth: if ALB identity headers are present and no n8n-auth
+		// cookie exists yet, validate the headers and issue an n8n-auth JWT cookie.
+		// Downstream request handling then behaves exactly like standard n8n auth.
+		this.app.use(Container.get(CognitoAuthService).createAuthMiddleware());
 
 		const { restEndpoint, app } = this;
 
@@ -326,21 +321,22 @@ export class Server extends AbstractServer {
 
 		// Protect type files with authentication regardless of UI availability
 		const authService = Container.get(AuthService);
-		const typeFilesAuthMiddleware = this.globalConfig.cognito.enabled
-			? Container.get(CognitoAuthService).createAuthMiddleware()
-			: authService.createAuthMiddleware({ allowSkipMFA: true, allowSkipPreviewAuth: true });
 		const protectedTypeFiles = [
 			'/types/nodes.json',
 			'/types/credentials.json',
 			'/types/node-versions.json',
 		];
 		protectedTypeFiles.forEach((path) => {
-			this.app.get(path, typeFilesAuthMiddleware, async (_, res: express.Response) => {
-				res.setHeader('Cache-Control', 'no-cache, must-revalidate');
-				res.sendFile(path.substring(1), {
-					root: staticCacheDir,
-				});
-			});
+			this.app.get(
+				path,
+				authService.createAuthMiddleware({ allowSkipMFA: true, allowSkipPreviewAuth: true }),
+				async (_, res: express.Response) => {
+					res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+					res.sendFile(path.substring(1), {
+						root: staticCacheDir,
+					});
+				},
+			);
 		});
 
 		if (frontendService) {
@@ -487,16 +483,10 @@ export class Server extends AbstractServer {
 		const authService = Container.get(AuthService);
 
 		if (frontendService) {
-			// When Cognito is enabled, attempt Cognito auth but allow unauthenticated
-			// requests through so the frontend can still get public settings.
-			const settingsAuthMiddleware = this.globalConfig.cognito.enabled
-				? Container.get(CognitoAuthService).createOptionalAuthMiddleware()
-				: authService.createAuthMiddleware({ allowSkipMFA: false, allowUnauthenticated: true });
-
 			// Returns the current settings for the UI
 			this.app.get(
 				`/${this.restEndpoint}/settings`,
-				settingsAuthMiddleware,
+				authService.createAuthMiddleware({ allowSkipMFA: false, allowUnauthenticated: true }),
 				ResponseHelper.send(async (req: AuthenticatedRequest) => {
 					return req.user
 						? await frontendService.getSettings()

@@ -89,6 +89,7 @@ import {
 import { setSchemaBaseDirs } from '@n8n/workflow-sdk';
 import { nanoid } from 'nanoid';
 import { OperationalError, UnexpectedError, UserError } from 'n8n-workflow';
+import type * as Undici from 'undici';
 import { v5 as uuidv5 } from 'uuid';
 
 import { N8N_VERSION, WORKFLOW_SDK_VERSION } from '@/constants';
@@ -289,6 +290,27 @@ function buildPlannedTaskConversationContext(
 	}
 
 	return parts.join('\n');
+}
+
+/**
+ * When HTTP_PROXY / HTTPS_PROXY is set (e.g. in e2e tests with MockServer),
+ * return a fetch function that routes requests through the proxy. Node.js's
+ * globalThis.fetch does not respect these env vars, so AI SDK providers would
+ * bypass the proxy without this.
+ */
+function getProxyFetch(): typeof globalThis.fetch | undefined {
+	const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+	if (!proxyUrl) return undefined;
+
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
+	const { ProxyAgent } = require('undici') as typeof Undici;
+	const dispatcher = new ProxyAgent(proxyUrl);
+	return (async (url: string | URL | Request, init?: RequestInit) =>
+		await globalThis.fetch(url, {
+			...init,
+			// @ts-expect-error dispatcher is a valid undici option for Node.js fetch
+			dispatcher,
+		})) as typeof globalThis.fetch;
 }
 
 interface MessageTraceFinalization {
@@ -662,11 +684,95 @@ export class InstanceAiService {
 	}
 
 	/**
-	 * Model resolver — always returns Bedrock config via env/defaults.
-	 * Credentials are inherited from the ECS task role (IAM credential chain).
+	 * Full model-resolver chain shared between chat and eval paths.
+	 *
+	 * Mirrors the resolution used in `processMessage`:
+	 *   1. AI service proxy (when enabled) — wraps with proxy auth.
+	 *   2. HTTP_PROXY (when set, e.g. e2e tests) — wraps with proxy fetch.
+	 *   3. Env vars / user credential — raw settings resolution.
+	 *
+	 * Call this instead of `settingsService.resolveModelConfig` directly so
+	 * the eval endpoint gets the same working model the chat endpoint uses.
 	 */
 	async resolveAgentModelConfig(user: User): Promise<ModelConfig> {
+		if (this.aiService.isProxyEnabled()) {
+			const client = await this.aiService.getClient();
+			const proxyBaseUrl = client.getApiProxyBaseUrl();
+			const tokenManager = new ProxyTokenManager(async () => {
+				return await client.getBuilderApiProxyToken({ id: user.id }, { userMessageId: nanoid() });
+			});
+			return await this.resolveProxyModel(user, proxyBaseUrl, tokenManager);
+		}
+		const httpProxyModel = await this.resolveHttpProxyModel(user);
+		if (httpProxyModel) return httpProxyModel;
 		return await this.settingsService.resolveModelConfig(user);
+	}
+
+	/**
+	 * Build model config. When the AI service proxy is enabled, returns a native
+	 * Anthropic LanguageModelV2 instance pointing at the proxy.
+	 *
+	 * We use `@ai-sdk/anthropic` directly instead of returning a `{ url }` config
+	 * object because this proxy route needs the native Anthropic transport.
+	 * The proxy may forward to Vertex AI, which only supports the native Anthropic
+	 * Messages API (`/v1/messages`), not the OpenAI-compatible endpoint.
+	 *
+	 * Auth headers are injected via a custom `fetch` wrapper so that each
+	 * request gets a fresh-or-cached token from the ProxyTokenManager,
+	 * avoiding 401s on long-running agent turns.
+	 */
+	private async resolveProxyModel(
+		user: User,
+		proxyBaseUrl: string,
+		tokenManager: ProxyTokenManager,
+	): Promise<ModelConfig> {
+		const modelName = await this.settingsService.resolveModelName(user);
+		const { createAnthropic } = await import('@ai-sdk/anthropic');
+		const provider = createAnthropic({
+			baseURL: proxyBaseUrl + '/anthropic/v1',
+			apiKey: 'proxy-managed',
+			fetch: async (input, init) => {
+				const headers = new Headers(init?.headers);
+				const auth = await tokenManager.getAuthHeaders();
+				for (const [k, v] of Object.entries(auth)) {
+					headers.set(k, v);
+				}
+				for (const [k, v] of Object.entries(
+					buildProxyHeaders({ feature: 'instance-ai', n8nVersion: N8N_VERSION }),
+				)) {
+					headers.set(k, v);
+				}
+				return await globalThis.fetch(input, { ...init, headers });
+			},
+		});
+		return provider(modelName);
+	}
+
+	/**
+	 * When HTTP_PROXY is set (e.g. e2e tests with MockServer), build the model
+	 * with a proxy-aware fetch so the AI SDK routes through the proxy.
+	 * Returns undefined if no HTTP_PROXY is set or the model isn't anthropic.
+	 */
+	private async resolveHttpProxyModel(user: User): Promise<ModelConfig | undefined> {
+		const proxyFetch = getProxyFetch();
+		if (!proxyFetch) return undefined;
+
+		const config = await this.settingsService.resolveModelConfig(user);
+		const modelId = typeof config === 'string' ? config : 'id' in config ? config.id : null;
+		if (!modelId) return undefined;
+
+		const [provider, ...rest] = modelId.split('/');
+		const modelName = rest.join('/');
+		const apiKey = typeof config === 'object' && 'apiKey' in config ? config.apiKey : undefined;
+		const baseURL = typeof config === 'object' && 'url' in config ? config.url : undefined;
+		if (provider !== 'anthropic') return undefined;
+
+		const { createAnthropic } = await import('@ai-sdk/anthropic');
+		return createAnthropic({
+			apiKey,
+			baseURL: baseURL || undefined,
+			fetch: proxyFetch,
+		})(modelName);
 	}
 
 	/**
@@ -2177,6 +2283,7 @@ export class InstanceAiService {
 		// transparently before it expires.
 		let searchProxyConfig: ServiceProxyConfig | undefined;
 		let tracingProxyConfig: ServiceProxyConfig | undefined;
+		let tokenManager: ProxyTokenManager | undefined;
 		let proxyBaseUrl: string | undefined;
 		if (this.aiService.isProxyEnabled()) {
 			const client = await this.aiService.getClient();
@@ -2184,6 +2291,7 @@ export class InstanceAiService {
 			const manager = new ProxyTokenManager(async () => {
 				return await client.getBuilderApiProxyToken({ id: user.id }, { userMessageId: nanoid() });
 			});
+			tokenManager = manager;
 			const featureHeaders = buildProxyHeaders({
 				feature: 'instance-ai',
 				n8nVersion: N8N_VERSION,
@@ -2243,7 +2351,10 @@ export class InstanceAiService {
 			};
 		}
 
-		const modelId = await this.resolveAgentModelConfig(user);
+		const modelId =
+			proxyBaseUrl && tokenManager
+				? await this.resolveProxyModel(user, proxyBaseUrl, tokenManager)
+				: await this.resolveAgentModelConfig(user);
 		const memory = this.agentMemory;
 		await this.ensureThreadExists(memory, threadId, user.id);
 

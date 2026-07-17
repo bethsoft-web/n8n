@@ -14,6 +14,37 @@ type CredMapper = (raw: ResolvedCredential) => Record<string, unknown>;
  * and optionally `baseURL`, which are already present in most credential types.
  */
 const PROVIDER_CREDENTIAL_MAPPERS: Record<string, CredMapper> = {
+	// OpenAiApi.credentials.ts        → apiKey, url (base URL)
+	openai: (c) => ({ apiKey: c.apiKey, baseURL: c.url }),
+	// AnthropicApi.credentials.ts     → apiKey, url (base URL)
+	anthropic: (c) => ({ apiKey: c.apiKey, baseURL: c.url }),
+	// GooglePalmApi.credentials.ts    → apiKey, host (base URL)
+	google: (c) => ({ apiKey: c.apiKey, baseURL: c.host }),
+	// XAiApi.credentials.ts           → apiKey, url (hidden, base URL)
+	xai: (c) => ({ apiKey: c.apiKey, baseURL: c.url }),
+	// GroqApi.credentials.ts          → apiKey only
+	groq: (c) => ({ apiKey: c.apiKey }),
+	// DeepSeekApi.credentials.ts      → apiKey, url (hidden, base URL)
+	deepseek: (c) => ({ apiKey: c.apiKey, baseURL: c.url }),
+	// CohereApi.credentials.ts        → apiKey, url (hidden, base URL)
+	cohere: (c) => ({ apiKey: c.apiKey, baseURL: c.url }),
+	// MistralCloudApi.credentials.ts  → apiKey only
+	mistral: (c) => ({ apiKey: c.apiKey }),
+	// VercelAiGatewayApi.credentials.ts → apiKey, url (base URL)
+	vercel: (c) => ({ apiKey: c.apiKey, baseURL: c.url }),
+	// OpenRouterApi.credentials.ts → apiKey, url (hidden, base URL)
+	openrouter: (c) => ({ apiKey: c.apiKey, baseURL: c.url }),
+
+	// AzureOpenAiApi.credentials.ts            → apiKey, resourceName, apiVersion, endpoint
+	// AzureEntraCognitiveServicesOAuth2Api.credentials.ts → resourceName, apiVersion, endpoint
+	// eslint-disable-next-line @typescript-eslint/naming-convention
+	'azure-openai': (c) => ({
+		apiKey: c.apiKey,
+		resourceName: c.resourceName,
+		apiVersion: c.apiVersion,
+		baseURL: c.endpoint,
+	}),
+
 	// Aws.credentials.ts → region, accessKeyId, secretAccessKey, sessionToken
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	'aws-bedrock': (c) => ({

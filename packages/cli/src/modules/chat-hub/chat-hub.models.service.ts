@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
 	chatHubProviderSchema,
 	emptyChatModelsResponse,
@@ -107,35 +106,74 @@ export class ChatHubModelsService {
 		additionalData: IWorkflowExecuteAdditionalData,
 	): Promise<ChatModelsResponse[ChatHubProvider]> {
 		switch (provider) {
+			case 'openai': {
+				const rawModels = await this.fetchOpenAiModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'openai') };
+			}
+			case 'anthropic': {
+				const rawModels = await this.fetchAnthropicModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'anthropic') };
+			}
+			case 'google': {
+				const rawModels = await this.fetchGoogleModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'google') };
+			}
+			case 'ollama': {
+				const rawModels = await this.fetchOllamaModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'ollama') };
+			}
+			case 'azureOpenAi': {
+				const rawModels = this.fetchAzureOpenAiModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'azureOpenAi') };
+			}
+			case 'azureEntraId': {
+				const rawModels = this.fetchAzureEntraIdModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'azureEntraId') };
+			}
 			case 'awsBedrock': {
 				const rawModels = await this.fetchAwsBedrockModels(credentials, additionalData);
 				return { models: this.transformAndFilterModels(rawModels, 'awsBedrock') };
 			}
 			case 'awsBedrockBuiltIn': {
-				return {
-					models: [
-						{
-							name: 'Claude Opus 4 (us.anthropic.claude-opus-4-6-v1)',
-							model: {
-								provider: 'awsBedrockBuiltIn' as const,
-								model: 'us.anthropic.claude-opus-4-6-v1',
-							},
-							description: 'Anthropic Claude Opus 4 via built-in IAM credentials',
-							icon: null,
-							createdAt: null,
-							updatedAt: null,
-							groupName: null,
-							groupIcon: null,
-							metadata: {
-								allowFileUploads: false,
-								allowedFilesMimeTypes: '',
-								available: true,
-								capabilities: { functionCalling: true },
-								inputModalities: [],
-							},
-						},
-					],
-				};
+				const rawModels: INodePropertyOptions[] = [
+					{
+						name: 'Claude Opus 4.6 (Built-in)',
+						value: 'us.anthropic.claude-opus-4-6-v1:0',
+					},
+				];
+				return { models: this.transformAndFilterModels(rawModels, 'awsBedrockBuiltIn') };
+			}
+			case 'vercelAiGateway': {
+				const rawModels = await this.fetchVercelAiGatewayModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'vercelAiGateway') };
+			}
+			case 'xAiGrok': {
+				const rawModels = await this.fetchXAiGrokModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'xAiGrok') };
+			}
+			case 'groq': {
+				const rawModels = await this.fetchGroqModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'groq') };
+			}
+			case 'openRouter': {
+				const rawModels = await this.fetchOpenRouterModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'openRouter') };
+			}
+			case 'deepSeek': {
+				const rawModels = await this.fetchDeepSeekModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'deepSeek') };
+			}
+			case 'cohere': {
+				const rawModels = await this.fetchCohereModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'cohere') };
+			}
+			case 'mistralCloud': {
+				const rawModels = await this.fetchMistralCloudModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'mistralCloud') };
+			}
+			case 'nvidia': {
+				const rawModels = await this.fetchNvidiaModels(credentials, additionalData);
+				return { models: this.transformAndFilterModels(rawModels, 'nvidia') };
 			}
 			case 'n8n':
 				return { models: await this.fetchAgentWorkflowsAsModels(user) };

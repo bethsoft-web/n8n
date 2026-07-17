@@ -152,7 +152,7 @@ describe('ChatGreetings', () => {
 	describe('LLM provider model (non workflow agent)', () => {
 		it('shows greeting text with agent name for LLM provider', () => {
 			const agent = createAgent({
-				model: { provider: 'awsBedrock', model: 'gpt-4' },
+				model: { provider: 'openai', model: 'gpt-4' },
 				name: 'GPT-4',
 			});
 

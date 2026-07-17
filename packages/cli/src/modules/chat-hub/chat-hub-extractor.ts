@@ -13,7 +13,6 @@ import { ensureError, jsonParse } from 'n8n-workflow';
 import { z } from 'zod';
 
 import { AuthService } from '@/auth/auth.service';
-import { GlobalConfig } from '@n8n/config';
 
 const EncryptedMetadataSchema = z.object({
 	encryptedMetadata: z.string(),
@@ -34,15 +33,7 @@ export function extractAuthenticationMetadata(
 ): ChatHubAuthenticationMetadata {
 	const authService = Container.get(AuthService);
 
-	let authToken = authService.getCookieToken(req);
-
-	// When using Cognito SSO (ALB OIDC), there is no n8n-auth cookie.
-	// Use the user ID as the identity token since credential resolution
-	// is handled by the IAM role, not per-user credentials.
-	if (!authToken && req.user && Container.get(GlobalConfig).cognito.enabled) {
-		authToken = `cognito:${req.user.id}`;
-	}
-
+	const authToken = authService.getCookieToken(req);
 	if (!authToken) {
 		throw new Error('No authentication token found');
 	}

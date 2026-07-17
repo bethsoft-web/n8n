@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { Logger } from '@n8n/backend-common';
 import type { ExecutionRepository, IExecutionResponse } from '@n8n/db';
 import type { WorkflowExecuteAfterContext, WorkflowExecuteResumeContext } from '@n8n/decorators';

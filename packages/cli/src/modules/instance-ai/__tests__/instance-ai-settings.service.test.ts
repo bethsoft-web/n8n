@@ -182,7 +182,7 @@ describe('InstanceAiSettingsService', () => {
 			});
 		});
 
-		it('should ignore credentialId and modelName updates (Bedrock only)', async () => {
+		it('should merge new fields with existing instanceAi settings on update', async () => {
 			aiService.isProxyEnabled.mockReturnValue(false);
 			const existingUser = mock<User>({
 				id: 'user-2',
@@ -192,7 +192,7 @@ describe('InstanceAiSettingsService', () => {
 			await service.updateUserPreferences(existingUser, { modelName: 'gpt-4' });
 
 			expect(userService.updateSettings).toHaveBeenCalledWith('user-2', {
-				instanceAi: { credentialId: 'cred-old', modelName: 'gpt-3.5' },
+				instanceAi: { credentialId: 'cred-old', modelName: 'gpt-4' },
 			});
 		});
 	});

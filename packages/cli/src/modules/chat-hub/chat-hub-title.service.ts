@@ -93,7 +93,7 @@ export class ChatHubTitleService {
 					trx,
 				);
 
-			if (!projectId || (!credentialId && resolvedModel.provider !== 'awsBedrockBuiltIn')) {
+			if (!credentialId || !projectId) {
 				throw new BadRequestError('Could not determine credentials for title generation');
 			}
 
@@ -177,7 +177,7 @@ export class ChatHubTitleService {
 		return {
 			resolvedCredentials: credentials,
 			resolvedModel: model,
-			credentialId: credentialId ?? '',
+			credentialId,
 			projectId,
 		};
 	}
@@ -245,12 +245,14 @@ export class ChatHubTitleService {
 			model: llmModel,
 		};
 
-		const credType = PROVIDER_CREDENTIAL_TYPE_MAP[modelNode.provider];
-		const resolvedCredentials: INodeCredentials = credType
-			? { [credType]: { id: credentialId, name: '' } }
-			: {};
+		const resolvedCredentials: INodeCredentials = {
+			[PROVIDER_CREDENTIAL_TYPE_MAP[modelNode.provider]]: {
+				id: credentialId,
+				name: '',
+			},
+		};
 
-		return { resolvedCredentials, resolvedModel, credentialId: credentialId ?? '', projectId };
+		return { resolvedCredentials, resolvedModel, credentialId, projectId };
 	}
 
 	private findSupportedLLMNodes(nodes: INode[]) {
@@ -290,9 +292,12 @@ export class ChatHubTitleService {
 			model: agent.model,
 		};
 
-		const credType = PROVIDER_CREDENTIAL_TYPE_MAP[agent.provider];
-		const resolvedCredentials: INodeCredentials =
-			credType && agent.credentialId ? { [credType]: { id: agent.credentialId, name: '' } } : {};
+		const resolvedCredentials: INodeCredentials = {
+			[PROVIDER_CREDENTIAL_TYPE_MAP[agent.provider]]: {
+				id: agent.credentialId,
+				name: '',
+			},
+		};
 
 		const credentialId = this.chatHubCredentialsService.findProviderCredential(
 			agent.provider,
@@ -301,6 +306,6 @@ export class ChatHubTitleService {
 
 		const { id: projectId } = await this.chatHubCredentialsService.findPersonalProject(user, trx);
 
-		return { resolvedCredentials, resolvedModel, credentialId: credentialId ?? '', projectId };
+		return { resolvedCredentials, resolvedModel, credentialId, projectId };
 	}
 }

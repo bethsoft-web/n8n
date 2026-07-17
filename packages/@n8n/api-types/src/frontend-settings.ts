@@ -28,13 +28,7 @@ export interface ITelemetrySettings {
 	config?: ITelemetryClientConfig;
 }
 
-export type AuthenticationMethod =
-	| 'email'
-	| 'ldap'
-	| 'saml'
-	| 'oidc'
-	| 'token-exchange'
-	| 'cognito';
+export type AuthenticationMethod = 'email' | 'ldap' | 'saml' | 'oidc' | 'token-exchange';
 
 export interface IUserManagementSettings {
 	quota: number;

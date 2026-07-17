@@ -28,6 +28,30 @@ const ADMIN_SETTINGS_KEY = 'instanceAi.settings';
 
 type UserInstanceAiPreferences = NonNullable<IUserSettings['instanceAi']>;
 
+/** Credential types we support and their model provider mapping. */
+const CREDENTIAL_TO_MODEL_PROVIDER: Record<string, string> = {
+	openAiApi: 'openai',
+	anthropicApi: 'anthropic',
+	googlePalmApi: 'google',
+	ollamaApi: 'ollama',
+	groqApi: 'groq',
+	deepSeekApi: 'deepseek',
+	mistralCloudApi: 'mistral',
+	xAiApi: 'xai',
+	openRouterApi: 'openrouter',
+	cohereApi: 'cohere',
+};
+
+const SUPPORTED_CREDENTIAL_TYPES = Object.keys(CREDENTIAL_TO_MODEL_PROVIDER);
+
+/** Fields that contain the base URL per credential type. */
+const URL_FIELD_MAP: Record<string, string> = {
+	openAiApi: 'url',
+	anthropicApi: 'url',
+	googlePalmApi: 'host',
+	ollamaApi: 'baseUrl',
+};
+
 // ---------------------------------------------------------------------------
 // Persisted shapes (no secrets — those come from env/config only)
 // ---------------------------------------------------------------------------
@@ -252,6 +276,8 @@ export class InstanceAiSettingsService {
 			);
 		}
 		const prefs: UserInstanceAiPreferences = { ...this.readUserPreferences(user) };
+		if (update.credentialId !== undefined) prefs.credentialId = update.credentialId;
+		if (update.modelName !== undefined) prefs.modelName = update.modelName;
 		if (update.localGatewayDisabled !== undefined)
 			prefs.localGatewayDisabled = update.localGatewayDisabled;
 		await this.userService.updateSettings(user.id, { instanceAi: prefs });
@@ -261,9 +287,20 @@ export class InstanceAiSettingsService {
 
 	// ── Shared accessors ──────────────────────────────────────────────────
 
-	/** List credentials the user can access that are usable as LLM providers. Disabled — Bedrock only. */
-	async listModelCredentials(_user: User): Promise<InstanceAiModelCredential[]> {
-		return [];
+	/** List credentials the user can access that are usable as LLM providers. */
+	async listModelCredentials(user: User): Promise<InstanceAiModelCredential[]> {
+		if (this.aiService.isProxyEnabled()) return [];
+		const allCredentials = await this.credentialsFinderService.findCredentialsForUser(user, [
+			'credential:read',
+		]);
+		return allCredentials
+			.filter((c) => SUPPORTED_CREDENTIAL_TYPES.includes(c.type))
+			.map((c) => ({
+				id: c.id,
+				name: c.name,
+				type: c.type,
+				provider: CREDENTIAL_TO_MODEL_PROVIDER[c.type] ?? 'custom',
+			}));
 	}
 
 	/** List credentials the user can access that are usable as sandbox/search services. */
@@ -403,9 +440,47 @@ export class InstanceAiSettingsService {
 		return prefs.modelName || this.extractModelName(this.config.model);
 	}
 
-	/** Resolve the current model configuration for an agent run. Always uses Bedrock via IAM. */
-	async resolveModelConfig(_user: User): Promise<ModelConfig> {
-		return this.envVarModelConfig();
+	/** Resolve the current model configuration for an agent run. */
+	async resolveModelConfig(user: User): Promise<ModelConfig> {
+		const prefs = this.readUserPreferences(user);
+		const credentialId = prefs.credentialId ?? null;
+
+		if (!credentialId) {
+			return this.envVarModelConfig();
+		}
+
+		const credential = await this.credentialsFinderService.findCredentialForUser(
+			credentialId,
+			user,
+			['credential:read'],
+		);
+
+		if (!credential) {
+			return this.envVarModelConfig();
+		}
+
+		const provider = CREDENTIAL_TO_MODEL_PROVIDER[credential.type];
+		if (!provider) {
+			return this.envVarModelConfig();
+		}
+
+		const data = await this.credentialsService.decrypt(credential, true);
+		const apiKey = typeof data.apiKey === 'string' ? data.apiKey : '';
+		const urlField = URL_FIELD_MAP[credential.type];
+		const rawUrl = urlField ? data[urlField] : undefined;
+		const baseUrl = typeof rawUrl === 'string' ? rawUrl : '';
+		const modelName = prefs.modelName || this.extractModelName(this.config.model);
+		const id: `${string}/${string}` = `${provider}/${modelName}`;
+
+		if (baseUrl) {
+			return { id, url: baseUrl, ...(apiKey ? { apiKey } : {}) };
+		}
+
+		if (apiKey) {
+			return { id, url: '', apiKey };
+		}
+
+		return id;
 	}
 
 	// ── Private helpers ───────────────────────────────────────────────────

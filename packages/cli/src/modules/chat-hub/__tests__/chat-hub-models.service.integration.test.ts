@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { ChatHubN8nModel } from '@n8n/api-types';
 import {
 	createActiveWorkflow,

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
 	ChatHubConversationModel,
 	ChatSessionId,
@@ -827,16 +826,6 @@ ${this.getSystemMessageMetadata(timeZone) + artifactContext}`;
 			case 'awsBedrock': {
 				return {
 					...common,
-					parameters: {
-						model,
-						options: {},
-					},
-				};
-			}
-			case 'awsBedrockBuiltIn': {
-				return {
-					...common,
-					credentials: {},
 					parameters: {
 						model,
 						options: {},

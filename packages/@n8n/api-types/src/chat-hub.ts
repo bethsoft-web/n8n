@@ -17,7 +17,24 @@ export { isValidTimeZone, StrictTimeZoneSchema, TimeZoneSchema } from './schemas
 /**
  * Supported AI model providers
  */
-export const chatHubLLMProviderSchema = z.enum(['awsBedrockBuiltIn']);
+export const chatHubLLMProviderSchema = z.enum([
+	'openai',
+	'anthropic',
+	'google',
+	'azureOpenAi',
+	'azureEntraId',
+	'ollama',
+	'awsBedrock',
+	'awsBedrockBuiltIn',
+	'vercelAiGateway',
+	'xAiGrok',
+	'groq',
+	'openRouter',
+	'deepSeek',
+	'cohere',
+	'mistralCloud',
+	'nvidia',
+]);
 
 export type ChatHubLLMProvider = z.infer<typeof chatHubLLMProviderSchema>;
 
@@ -66,12 +83,27 @@ export type ChatHubSessionType = z.infer<typeof chatHubSessionTypeSchema>;
 /**
  * Map of providers to their credential types
  * Only LLM providers (openai, anthropic, google) have credentials
+ * `awsBedrockBuiltIn` reuses the AWS credential type for UI icon lookups;
+ * at runtime it authenticates via the ECS task role and never loads a credential.
  */
-/**
- * Map of providers to their credential types.
- * Built-in providers (awsBedrockBuiltIn) don't need credentials — IAM role is used.
- */
-export const PROVIDER_CREDENTIAL_TYPE_MAP: Partial<Record<ChatHubLLMProvider, string>> = {};
+export const PROVIDER_CREDENTIAL_TYPE_MAP: Record<ChatHubLLMProvider, string> = {
+	openai: 'openAiApi',
+	anthropic: 'anthropicApi',
+	google: 'googlePalmApi',
+	ollama: 'ollamaApi',
+	azureOpenAi: 'azureOpenAiApi',
+	azureEntraId: 'azureEntraCognitiveServicesOAuth2Api',
+	awsBedrock: 'aws',
+	awsBedrockBuiltIn: 'aws',
+	vercelAiGateway: 'vercelAiGatewayApi',
+	xAiGrok: 'xAiApi',
+	groq: 'groqApi',
+	openRouter: 'openRouterApi',
+	deepSeek: 'deepSeekApi',
+	cohere: 'cohereApi',
+	mistralCloud: 'mistralCloudApi',
+	nvidia: 'nvidiaApi',
+};
 
 export const VECTOR_STORE_PROVIDER_CREDENTIAL_TYPE_MAP: Record<ChatHubVectorStoreProvider, string> =
 	{
@@ -83,8 +115,83 @@ export const VECTOR_STORE_PROVIDER_CREDENTIAL_TYPE_MAP: Record<ChatHubVectorStor
 /**
  * Chat Hub conversation model configuration
  */
+const openAIModelSchema = z.object({
+	provider: z.literal('openai'),
+	model: z.string(),
+});
+
+const anthropicModelSchema = z.object({
+	provider: z.literal('anthropic'),
+	model: z.string(),
+});
+
+const googleModelSchema = z.object({
+	provider: z.literal('google'),
+	model: z.string(),
+});
+
+const azureOpenAIModelSchema = z.object({
+	provider: z.literal('azureOpenAi'),
+	model: z.string(),
+});
+
+const azureEntraIdModelSchema = z.object({
+	provider: z.literal('azureEntraId'),
+	model: z.string(),
+});
+
+const ollamaModelSchema = z.object({
+	provider: z.literal('ollama'),
+	model: z.string(),
+});
+
+const awsBedrockModelSchema = z.object({
+	provider: z.literal('awsBedrock'),
+	model: z.string(),
+});
+
 const awsBedrockBuiltInModelSchema = z.object({
 	provider: z.literal('awsBedrockBuiltIn'),
+	model: z.string(),
+});
+
+const vercelAiGatewaySchema = z.object({
+	provider: z.literal('vercelAiGateway'),
+	model: z.string(),
+});
+
+const xAiGrokModelSchema = z.object({
+	provider: z.literal('xAiGrok'),
+	model: z.string(),
+});
+
+const groqModelSchema = z.object({
+	provider: z.literal('groq'),
+	model: z.string(),
+});
+
+const openRouterModelSchema = z.object({
+	provider: z.literal('openRouter'),
+	model: z.string(),
+});
+
+const deepSeekModelSchema = z.object({
+	provider: z.literal('deepSeek'),
+	model: z.string(),
+});
+
+const cohereModelSchema = z.object({
+	provider: z.literal('cohere'),
+	model: z.string(),
+});
+
+const mistralCloudModelSchema = z.object({
+	provider: z.literal('mistralCloud'),
+	model: z.string(),
+});
+
+const nvidiaModelSchema = z.object({
+	provider: z.literal('nvidia'),
 	model: z.string(),
 });
 
@@ -99,13 +206,59 @@ const chatAgentSchema = z.object({
 });
 
 export const chatHubConversationModelSchema = z.discriminatedUnion('provider', [
+	openAIModelSchema,
+	anthropicModelSchema,
+	googleModelSchema,
+	azureOpenAIModelSchema,
+	azureEntraIdModelSchema,
+	ollamaModelSchema,
+	awsBedrockModelSchema,
 	awsBedrockBuiltInModelSchema,
+	vercelAiGatewaySchema,
+	xAiGrokModelSchema,
+	groqModelSchema,
+	openRouterModelSchema,
+	deepSeekModelSchema,
+	cohereModelSchema,
+	mistralCloudModelSchema,
+	nvidiaModelSchema,
 	n8nModelSchema,
 	chatAgentSchema,
 ]);
 
+export type ChatHubOpenAIModel = z.infer<typeof openAIModelSchema>;
+export type ChatHubAnthropicModel = z.infer<typeof anthropicModelSchema>;
+export type ChatHubGoogleModel = z.infer<typeof googleModelSchema>;
+export type ChatHubAzureOpenAIModel = z.infer<typeof azureOpenAIModelSchema>;
+export type ChatHubAzureEntraIdModel = z.infer<typeof azureEntraIdModelSchema>;
+export type ChatHubOllamaModel = z.infer<typeof ollamaModelSchema>;
+export type ChatHubAwsBedrockModel = z.infer<typeof awsBedrockModelSchema>;
 export type ChatHubAwsBedrockBuiltInModel = z.infer<typeof awsBedrockBuiltInModelSchema>;
-export type ChatHubBaseLLMModel = ChatHubAwsBedrockBuiltInModel;
+export type ChatHubVercelAiGatewayModel = z.infer<typeof vercelAiGatewaySchema>;
+export type ChatHubXAiGrokModel = z.infer<typeof xAiGrokModelSchema>;
+export type ChatHubGroqModel = z.infer<typeof groqModelSchema>;
+export type ChatHubOpenRouterModel = z.infer<typeof openRouterModelSchema>;
+export type ChatHubDeepSeekModel = z.infer<typeof deepSeekModelSchema>;
+export type ChatHubCohereModel = z.infer<typeof cohereModelSchema>;
+export type ChatHubMistralCloudModel = z.infer<typeof mistralCloudModelSchema>;
+export type ChatHubNvidiaModel = z.infer<typeof nvidiaModelSchema>;
+export type ChatHubBaseLLMModel =
+	| ChatHubOpenAIModel
+	| ChatHubAnthropicModel
+	| ChatHubGoogleModel
+	| ChatHubAzureOpenAIModel
+	| ChatHubAzureEntraIdModel
+	| ChatHubOllamaModel
+	| ChatHubAwsBedrockModel
+	| ChatHubAwsBedrockBuiltInModel
+	| ChatHubVercelAiGatewayModel
+	| ChatHubXAiGrokModel
+	| ChatHubGroqModel
+	| ChatHubOpenRouterModel
+	| ChatHubDeepSeekModel
+	| ChatHubCohereModel
+	| ChatHubMistralCloudModel
+	| ChatHubNvidiaModel;
 
 export type ChatHubN8nModel = z.infer<typeof n8nModelSchema>;
 export type ChatHubCustomAgentModel = z.infer<typeof chatAgentSchema>;
@@ -157,7 +310,22 @@ export type ChatModelsResponse = Record<
 >;
 
 export const emptyChatModelsResponse: ChatModelsResponse = {
+	openai: { models: [] },
+	anthropic: { models: [] },
+	google: { models: [] },
+	azureOpenAi: { models: [] },
+	azureEntraId: { models: [] },
+	ollama: { models: [] },
+	awsBedrock: { models: [] },
 	awsBedrockBuiltIn: { models: [] },
+	vercelAiGateway: { models: [] },
+	xAiGrok: { models: [] },
+	groq: { models: [] },
+	openRouter: { models: [] },
+	deepSeek: { models: [] },
+	cohere: { models: [] },
+	mistralCloud: { models: [] },
+	nvidia: { models: [] },
 	n8n: { models: [] },
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	'custom-agent': { models: [] },
