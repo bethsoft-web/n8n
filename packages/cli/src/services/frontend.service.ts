@@ -155,10 +155,10 @@ export class FrontendService {
 	}
 
 	private async getShowSetupOnFirstLoad() {
-		const previewMode = process.env.N8N_PREVIEW_MODE === 'true';
-		const hasInstanceOwner = await this.ownershipService.hasInstanceOwner();
-		// In preview mode, skip the setup redirect to allow accessing demo routes
-		return previewMode ? false : !hasInstanceOwner;
+		// Fork: user provisioning is handled by Cognito (JIT) or out-of-band,
+		// so the built-in first-run owner setup wizard is never shown.
+		void this.ownershipService;
+		return false;
 	}
 
 	private async initSettings() {

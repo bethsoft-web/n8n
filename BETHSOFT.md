@@ -89,6 +89,7 @@ the owner is created, the route is inaccessible.
 | `packages/@n8n/config/src/configs/cognito.config.ts` | Cognito config schema (`globalConfig.cognito`) |
 | `packages/cli/src/auth/cognito-auth.service.ts` | ALB header validation + JIT user provisioning + JWT cookie issuance |
 | `packages/cli/src/server.ts` | Mounts the global Cognito pre-middleware after `cookieParser()` |
+| `packages/cli/src/services/frontend.service.ts` | Forces `getShowSetupOnFirstLoad()` to `false` — users are provisioned JIT by Cognito, so the built-in first-run owner wizard must never render |
 
 The design goal is to make Cognito look identical to standard n8n
 authentication to every downstream request handler. A single global
