@@ -138,7 +138,27 @@ export class ChatHubModelsService {
 				const rawModels: INodePropertyOptions[] = [
 					{
 						name: 'Claude Opus 4.6 (Built-in)',
-						value: 'us.anthropic.claude-opus-4-6-v1:0',
+						value: 'us.anthropic.claude-opus-4-6-v1',
+					},
+					{
+						name: 'Claude Haiku 4.5 (Built-in)',
+						value: 'us.anthropic.claude-haiku-4-5-v1',
+					},
+					{
+						name: 'Kimi K2 Thinking (Built-in)',
+						value: 'moonshot.kimi-k2-thinking',
+					},
+					{
+						name: 'Qwen3 32B (Built-in)',
+						value: 'qwen.qwen3-32b-v1:0',
+					},
+					{
+						name: 'Qwen3 Next 80B A3B (Built-in)',
+						value: 'qwen.qwen3-next-80b-a3b',
+					},
+					{
+						name: 'Qwen3 VL 235B A22B (Built-in)',
+						value: 'qwen.qwen3-vl-235b-a22b',
 					},
 				];
 				return { models: this.transformAndFilterModels(rawModels, 'awsBedrockBuiltIn') };
