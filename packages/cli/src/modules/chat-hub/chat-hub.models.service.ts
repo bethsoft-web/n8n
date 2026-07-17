@@ -57,7 +57,7 @@ export class ChatHubModelsService {
 					if (
 						provider !== 'n8n' &&
 						provider !== 'custom-agent' &&
-						provider !== 'awsBedrockBuiltIn'
+						PROVIDER_CREDENTIAL_TYPE_MAP[provider] !== 'builtin'
 					) {
 						const credentialId = credentialIds[provider];
 						if (!credentialId) {

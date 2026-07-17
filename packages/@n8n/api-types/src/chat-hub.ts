@@ -83,8 +83,9 @@ export type ChatHubSessionType = z.infer<typeof chatHubSessionTypeSchema>;
 /**
  * Map of providers to their credential types
  * Only LLM providers (openai, anthropic, google) have credentials
- * `awsBedrockBuiltIn` reuses the AWS credential type for UI icon lookups;
- * at runtime it authenticates via the ECS task role and never loads a credential.
+ * Built-in providers map to the `builtin` placeholder credential type so UI
+ * icon lookups resolve; at runtime they authenticate via infrastructure
+ * (e.g. ECS task role) and no credential is ever loaded.
  */
 export const PROVIDER_CREDENTIAL_TYPE_MAP: Record<ChatHubLLMProvider, string> = {
 	openai: 'openAiApi',
@@ -94,7 +95,7 @@ export const PROVIDER_CREDENTIAL_TYPE_MAP: Record<ChatHubLLMProvider, string> = 
 	azureOpenAi: 'azureOpenAiApi',
 	azureEntraId: 'azureEntraCognitiveServicesOAuth2Api',
 	awsBedrock: 'aws',
-	awsBedrockBuiltIn: 'aws',
+	awsBedrockBuiltIn: 'builtin',
 	vercelAiGateway: 'vercelAiGatewayApi',
 	xAiGrok: 'xAiApi',
 	groq: 'groqApi',
