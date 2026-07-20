@@ -43,6 +43,12 @@ export class ChatHubCredentialsService {
 			return null;
 		}
 
+		// Built-in providers (e.g. awsBedrockBuiltIn) authenticate via the n8n
+		// runtime environment (ECS task role, etc.) and never need a user credential.
+		if (PROVIDER_CREDENTIAL_TYPE_MAP[provider] === 'builtin') {
+			return null;
+		}
+
 		return credentials[PROVIDER_CREDENTIAL_TYPE_MAP[provider]]?.id ?? null;
 	}
 
@@ -60,6 +66,12 @@ export class ChatHubCredentialsService {
 	 * at execution time within the context and project of the workflow.
 	 */
 	findProviderCredential(provider: ChatHubLLMProvider, credentials: INodeCredentials) {
+		// Built-in providers authenticate via the runtime environment; no user
+		// credential is required or expected.
+		if (PROVIDER_CREDENTIAL_TYPE_MAP[provider] === 'builtin') {
+			return '';
+		}
+
 		const credentialId = this.pickCredentialId(provider, credentials);
 		if (!credentialId) {
 			throw new BadRequestError('No credentials provided for the selected model provider');

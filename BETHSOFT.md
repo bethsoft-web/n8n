@@ -150,6 +150,8 @@ Add a single new provider — `awsBedrockBuiltIn` — authenticates via the ECS 
 | `packages/@n8n/api-types/src/chat-hub.ts` | Added `awsBedrockBuiltIn` to provider schema and discriminated union; added `PROVIDER_CREDENTIAL_TYPE_MAP` entry pointing at the new `builtin` credential type. |
 | `packages/cli/src/modules/chat-hub/chat-hub.constants.ts` | Added `PROVIDER_NODE_TYPE_MAP` entry mapping `awsBedrockBuiltIn` to the new node. |
 | `packages/cli/src/modules/chat-hub/chat-hub.models.service.ts` | Added model fetching case; credential short-circuit guard now skips any provider whose credential type is `'builtin'`. |
+| `packages/cli/src/modules/chat-hub/chat-hub-credentials.service.ts` | `pickCredentialId` / `findProviderCredential` short-circuit when the provider's credential type is `'builtin'` — no user credential is required or looked up. |
+| `packages/cli/src/modules/chat-hub/chat-hub-workflow.service.ts` | Added `awsBedrockBuiltIn` branch to `buildModelNode()` (otherwise the switch falls through to `Unsupported model provider`). |
 | `packages/cli/src/modules/chat-hub/context-limits.ts` | Added empty `awsBedrockBuiltIn` entry. |
 | `packages/@n8n/nodes-langchain/credentials/BuiltIn.credentials.ts` | New placeholder credential type so `<CredentialIcon credential-type-name="builtin" />` resolves to a real icon. `__skipManagedCreation = true` hides it from the "New credential" picker. |
 | `packages/@n8n/nodes-langchain/credentials/icons/BuiltIn.{svg,dark.svg}` | Icon assets for the `builtin` credential type. |
