@@ -56,15 +56,15 @@ export class LmChatAwsBedrockBuiltIn implements INodeType {
 				name: 'model',
 				type: 'options',
 				default: 'us.anthropic.claude-opus-4-6-v1',
-				description: 'The Bedrock model ID or inference profile ARN to use for completion.',
+				description: 'The Bedrock model ID or inference profile ARN to use for completion',
 				options: [
+					{
+						name: 'Claude Haiku 4.5',
+						value: 'us.anthropic.claude-haiku-4-5-20251001-v1:0',
+					},
 					{
 						name: 'Claude Opus 4.6',
 						value: 'us.anthropic.claude-opus-4-6-v1',
-					},
-					{
-						name: 'Claude Haiku 4.5',
-						value: 'us.anthropic.claude-haiku-4-5-v1',
 					},
 					{
 						name: 'Kimi K2 Thinking',

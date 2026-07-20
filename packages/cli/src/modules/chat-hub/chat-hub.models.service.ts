@@ -142,7 +142,7 @@ export class ChatHubModelsService {
 					},
 					{
 						name: 'Claude Haiku 4.5 (Built-in)',
-						value: 'us.anthropic.claude-haiku-4-5-v1',
+						value: 'us.anthropic.claude-haiku-4-5-20251001-v1:0',
 					},
 					{
 						name: 'Kimi K2 Thinking (Built-in)',
