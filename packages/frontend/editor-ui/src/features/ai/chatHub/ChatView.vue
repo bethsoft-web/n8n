@@ -276,6 +276,12 @@ const credentialsForSelectedProvider = computed<ChatHubSendMessageRequest['crede
 			return {};
 		}
 
+		// Built-in providers (credentials supplied by the n8n runtime, e.g. AWS
+		// instance role for awsBedrockBuiltIn) never require a user credential.
+		if (PROVIDER_CREDENTIAL_TYPE_MAP[provider] === 'builtin') {
+			return {};
+		}
+
 		const credentialsId = credentialsByProvider.value?.[provider];
 
 		if (!credentialsId) {

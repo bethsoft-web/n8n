@@ -156,6 +156,7 @@ Add a single new provider — `awsBedrockBuiltIn` — authenticates via the ECS 
 | `packages/frontend/editor-ui/src/features/ai/chatHub/constants.ts` | Added `providerDisplayNames` entry: `"AWS Bedrock (Built-in)"`. |
 | `packages/frontend/editor-ui/src/features/agents/provider-capabilities.ts` | Added `awsBedrockBuiltIn` entry with `thinking: 'budgetTokens'` (Claude supports extended thinking with budget tokens). |
 | `packages/frontend/editor-ui/src/features/agents/provider-mapping.ts` | Added `awsBedrockBuiltIn: 'aws-bedrock'` to `CHATHUB_TO_CATALOG`. |
+| `packages/frontend/editor-ui/src/features/ai/chatHub/ChatView.vue` | Chat input credential check treats any provider whose `PROVIDER_CREDENTIAL_TYPE_MAP` entry is `'builtin'` as pre-authenticated, so the "missing credentials" callout stays hidden and the input stays enabled. |
 
 
 ### Upstream architecture
