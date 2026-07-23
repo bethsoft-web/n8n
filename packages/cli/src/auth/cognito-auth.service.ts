@@ -265,8 +265,13 @@ export class CognitoAuthService {
 			relations: ['role'],
 		});
 
+		const roleSlugFromGroups = (): string | null => {
+			if (groups.includes(ownerGroup)) return 'global:owner';
+			if (groups.includes(adminGroup)) return 'global:admin';
+			return null;
+		};
+
 		if (user) {
-			// Update name if changed
 			let needsUpdate = false;
 			if (identity.firstName && user.firstName !== identity.firstName) {
 				user.firstName = identity.firstName;
@@ -276,8 +281,33 @@ export class CognitoAuthService {
 				user.lastName = identity.lastName;
 				needsUpdate = true;
 			}
+
+			// Re-sync role from Cognito groups. Never demote the sole global:owner
+			// (avoids locking the instance out) and only promote/adjust when groups
+			// map to a global role.
+			const mappedRole = roleSlugFromGroups();
+			const currentRoleSlug = user.role?.slug;
+			if (mappedRole && mappedRole !== currentRoleSlug) {
+				if (currentRoleSlug === 'global:owner') {
+					const ownerCount = await this.userRepository.count({
+						where: { role: { slug: 'global:owner' } },
+					});
+					if (ownerCount > 1) {
+						user.role = { slug: mappedRole } as User['role'];
+						needsUpdate = true;
+					}
+				} else {
+					user.role = { slug: mappedRole } as User['role'];
+					needsUpdate = true;
+				}
+			}
+
 			if (needsUpdate) {
 				await this.userRepository.save(user);
+				this.logger.info('Cognito auth: Synced user from Cognito groups', {
+					email: identity.email,
+					role: user.role?.slug,
+				});
 			}
 			return user;
 		}
@@ -288,12 +318,7 @@ export class CognitoAuthService {
 		});
 
 		// Determine role based on Cognito groups
-		let roleSlug = 'global:member';
-		if (groups.includes(ownerGroup)) {
-			roleSlug = 'global:owner';
-		} else if (groups.includes(adminGroup)) {
-			roleSlug = 'global:admin';
-		}
+		let roleSlug = roleSlugFromGroups() ?? 'global:member';
 
 		// Check if this is the first user (should be owner)
 		const userCount = await this.userRepository.count();
